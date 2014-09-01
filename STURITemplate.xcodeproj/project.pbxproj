@@ -10,29 +10,57 @@
 		2C76994519B2A0F90044B497 /* STURITemplateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C76994419B2A0F90044B497 /* STURITemplateTests.m */; };
 		2C76995019B2A7070044B497 /* STURITemplate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C76994E19B2A7070044B497 /* STURITemplate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2C76995119B2A7070044B497 /* STURITemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C76994F19B2A7070044B497 /* STURITemplate.m */; };
-		2C76995419B2A7EB0044B497 /* STURITemplate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C76993519B2A0F90044B497 /* STURITemplate.framework */; };
 		2C76995619B2BE980044B497 /* uritemplate-test in Resources */ = {isa = PBXBuildFile; fileRef = 2C76995519B2BE980044B497 /* uritemplate-test */; };
+		2C76998919B303220044B497 /* libSTURITemplate.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C76995B19B302D00044B497 /* libSTURITemplate.a */; };
+		2C76998A19B303280044B497 /* libSTURITemplate.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C76997319B302FB0044B497 /* libSTURITemplate.a */; };
+		2C76998E19B303620044B497 /* STURITemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C76994F19B2A7070044B497 /* STURITemplate.m */; };
+		2C76998F19B303630044B497 /* STURITemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C76994F19B2A7070044B497 /* STURITemplate.m */; };
+		2C76999219B303A40044B497 /* STURITemplate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C76994E19B2A7070044B497 /* STURITemplate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2C76999319B303B00044B497 /* STURITemplate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C76994E19B2A7070044B497 /* STURITemplate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		2C76995219B2A7E70044B497 /* PBXContainerItemProxy */ = {
+		2C76998719B3031C0044B497 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2C76992C19B2A0F90044B497 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 2C76993419B2A0F90044B497;
-			remoteInfo = STURITemplate;
+			remoteGlobalIDString = 2C76995A19B302D00044B497;
+			remoteInfo = "STURITemplate-mac";
+		};
+		2C76998B19B3032B0044B497 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C76992C19B2A0F90044B497 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2C76997219B302FB0044B497;
+			remoteInfo = "STURITemplate-ios";
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2C76997119B302FB0044B497 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2C76993519B2A0F90044B497 /* STURITemplate.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = STURITemplate.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C76993919B2A0F90044B497 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		2C76994019B2A0F90044B497 /* STURITemplateTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = STURITemplateTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C76994019B2A0F90044B497 /* STURITemplateTests-mac.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "STURITemplateTests-mac.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C76994319B2A0F90044B497 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2C76994419B2A0F90044B497 /* STURITemplateTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = STURITemplateTests.m; sourceTree = "<group>"; };
 		2C76994E19B2A7070044B497 /* STURITemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STURITemplate.h; sourceTree = "<group>"; };
 		2C76994F19B2A7070044B497 /* STURITemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STURITemplate.m; sourceTree = "<group>"; };
 		2C76995519B2BE980044B497 /* uritemplate-test */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "uritemplate-test"; sourceTree = "<group>"; };
+		2C76995B19B302D00044B497 /* libSTURITemplate.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSTURITemplate.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C76997319B302FB0044B497 /* libSTURITemplate.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSTURITemplate.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C76997D19B302FB0044B497 /* STURITemplateTests-ios.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "STURITemplateTests-ios.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C76998D19B303490044B497 /* STURITemplate-mac.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = "STURITemplate-mac.playground"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,7 +75,29 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2C76995419B2A7EB0044B497 /* STURITemplate.framework in Frameworks */,
+				2C76998919B303220044B497 /* libSTURITemplate.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C76995819B302D00044B497 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C76997019B302FB0044B497 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C76997A19B302FB0044B497 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C76998A19B303280044B497 /* libSTURITemplate.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -57,6 +107,7 @@
 		2C76992B19B2A0F90044B497 = {
 			isa = PBXGroup;
 			children = (
+				2C76998D19B303490044B497 /* STURITemplate-mac.playground */,
 				2C76993719B2A0F90044B497 /* STURITemplate */,
 				2C76994119B2A0F90044B497 /* STURITemplateTests */,
 				2C76993619B2A0F90044B497 /* Products */,
@@ -67,7 +118,10 @@
 			isa = PBXGroup;
 			children = (
 				2C76993519B2A0F90044B497 /* STURITemplate.framework */,
-				2C76994019B2A0F90044B497 /* STURITemplateTests.xctest */,
+				2C76994019B2A0F90044B497 /* STURITemplateTests-mac.xctest */,
+				2C76995B19B302D00044B497 /* libSTURITemplate.a */,
+				2C76997319B302FB0044B497 /* libSTURITemplate.a */,
+				2C76997D19B302FB0044B497 /* STURITemplateTests-ios.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -103,12 +157,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2C76995919B302D00044B497 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C76999319B303B00044B497 /* STURITemplate.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C76999119B3038C0044B497 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C76999219B303A40044B497 /* STURITemplate.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		2C76993419B2A0F90044B497 /* STURITemplate */ = {
+		2C76993419B2A0F90044B497 /* STURITemplate-mac-framework */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2C76994819B2A0F90044B497 /* Build configuration list for PBXNativeTarget "STURITemplate" */;
+			buildConfigurationList = 2C76994819B2A0F90044B497 /* Build configuration list for PBXNativeTarget "STURITemplate-mac-framework" */;
 			buildPhases = (
 				2C76993019B2A0F90044B497 /* Sources */,
 				2C76993119B2A0F90044B497 /* Frameworks */,
@@ -119,14 +189,14 @@
 			);
 			dependencies = (
 			);
-			name = STURITemplate;
+			name = "STURITemplate-mac-framework";
 			productName = STURITemplate;
 			productReference = 2C76993519B2A0F90044B497 /* STURITemplate.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		2C76993F19B2A0F90044B497 /* STURITemplateTests */ = {
+		2C76993F19B2A0F90044B497 /* STURITemplateTests-mac */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2C76994B19B2A0F90044B497 /* Build configuration list for PBXNativeTarget "STURITemplateTests" */;
+			buildConfigurationList = 2C76994B19B2A0F90044B497 /* Build configuration list for PBXNativeTarget "STURITemplateTests-mac" */;
 			buildPhases = (
 				2C76993C19B2A0F90044B497 /* Sources */,
 				2C76993D19B2A0F90044B497 /* Frameworks */,
@@ -135,11 +205,64 @@
 			buildRules = (
 			);
 			dependencies = (
-				2C76995319B2A7E70044B497 /* PBXTargetDependency */,
+				2C76998819B3031C0044B497 /* PBXTargetDependency */,
 			);
-			name = STURITemplateTests;
+			name = "STURITemplateTests-mac";
 			productName = STURITemplateTests;
-			productReference = 2C76994019B2A0F90044B497 /* STURITemplateTests.xctest */;
+			productReference = 2C76994019B2A0F90044B497 /* STURITemplateTests-mac.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		2C76995A19B302D00044B497 /* STURITemplate-mac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C76996919B302D00044B497 /* Build configuration list for PBXNativeTarget "STURITemplate-mac" */;
+			buildPhases = (
+				2C76995719B302D00044B497 /* Sources */,
+				2C76995819B302D00044B497 /* Frameworks */,
+				2C76995919B302D00044B497 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "STURITemplate-mac";
+			productName = "STURITemplate-mac";
+			productReference = 2C76995B19B302D00044B497 /* libSTURITemplate.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		2C76997219B302FB0044B497 /* STURITemplate-ios */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C76998119B302FB0044B497 /* Build configuration list for PBXNativeTarget "STURITemplate-ios" */;
+			buildPhases = (
+				2C76996F19B302FB0044B497 /* Sources */,
+				2C76997019B302FB0044B497 /* Frameworks */,
+				2C76997119B302FB0044B497 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "STURITemplate-ios";
+			productName = "STURITemplate-ios";
+			productReference = 2C76997319B302FB0044B497 /* libSTURITemplate.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		2C76997C19B302FB0044B497 /* STURITemplateTests-ios */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C76998419B302FB0044B497 /* Build configuration list for PBXNativeTarget "STURITemplateTests-ios" */;
+			buildPhases = (
+				2C76997919B302FB0044B497 /* Sources */,
+				2C76997A19B302FB0044B497 /* Frameworks */,
+				2C76997B19B302FB0044B497 /* Resources */,
+				2C76999119B3038C0044B497 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2C76998C19B3032B0044B497 /* PBXTargetDependency */,
+			);
+			name = "STURITemplateTests-ios";
+			productName = "STURITemplate-iosTests";
+			productReference = 2C76997D19B302FB0044B497 /* STURITemplateTests-ios.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -157,6 +280,15 @@
 					2C76993F19B2A0F90044B497 = {
 						CreatedOnToolsVersion = 6.0;
 					};
+					2C76995A19B302D00044B497 = {
+						CreatedOnToolsVersion = 6.0;
+					};
+					2C76997219B302FB0044B497 = {
+						CreatedOnToolsVersion = 6.0;
+					};
+					2C76997C19B302FB0044B497 = {
+						CreatedOnToolsVersion = 6.0;
+					};
 				};
 			};
 			buildConfigurationList = 2C76992F19B2A0F90044B497 /* Build configuration list for PBXProject "STURITemplate" */;
@@ -171,8 +303,11 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2C76993419B2A0F90044B497 /* STURITemplate */,
-				2C76993F19B2A0F90044B497 /* STURITemplateTests */,
+				2C76995A19B302D00044B497 /* STURITemplate-mac */,
+				2C76993419B2A0F90044B497 /* STURITemplate-mac-framework */,
+				2C76993F19B2A0F90044B497 /* STURITemplateTests-mac */,
+				2C76997219B302FB0044B497 /* STURITemplate-ios */,
+				2C76997C19B302FB0044B497 /* STURITemplateTests-ios */,
 			);
 		};
 /* End PBXProject section */
@@ -190,6 +325,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C76995619B2BE980044B497 /* uritemplate-test in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C76997B19B302FB0044B497 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -212,13 +354,41 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2C76995719B302D00044B497 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C76998E19B303620044B497 /* STURITemplate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C76996F19B302FB0044B497 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C76998F19B303630044B497 /* STURITemplate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C76997919B302FB0044B497 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		2C76995319B2A7E70044B497 /* PBXTargetDependency */ = {
+		2C76998819B3031C0044B497 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 2C76993419B2A0F90044B497 /* STURITemplate */;
-			targetProxy = 2C76995219B2A7E70044B497 /* PBXContainerItemProxy */;
+			target = 2C76995A19B302D00044B497 /* STURITemplate-mac */;
+			targetProxy = 2C76998719B3031C0044B497 /* PBXContainerItemProxy */;
+		};
+		2C76998C19B3032B0044B497 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2C76997219B302FB0044B497 /* STURITemplate-ios */;
+			targetProxy = 2C76998B19B3032B0044B497 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -227,17 +397,24 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_ASSIGN_ENUM = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
@@ -252,15 +429,15 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx;
+				RUN_CLANG_STATIC_ANALYZER = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -270,17 +447,24 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_ASSIGN_ENUM = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
@@ -290,14 +474,15 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				SDKROOT = macosx;
+				RUN_CLANG_STATIC_ANALYZER = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -315,7 +500,8 @@
 				INFOPLIST_FILE = STURITemplate/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = STURITemplate;
+				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -332,7 +518,8 @@
 				INFOPLIST_FILE = STURITemplate/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = STURITemplate;
+				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -352,6 +539,7 @@
 				INFOPLIST_FILE = STURITemplateTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -366,6 +554,91 @@
 				INFOPLIST_FILE = STURITemplateTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		2C76996A19B302D00044B497 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				PRODUCT_NAME = STURITemplate;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		2C76996B19B302D00044B497 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = STURITemplate;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		2C76998219B302FB0044B497 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = STURITemplate;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		2C76998319B302FB0044B497 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = STURITemplate;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2C76998519B302FB0044B497 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "STURITemplate-iosTests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		2C76998619B302FB0044B497 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "STURITemplate-iosTests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -381,7 +654,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2C76994819B2A0F90044B497 /* Build configuration list for PBXNativeTarget "STURITemplate" */ = {
+		2C76994819B2A0F90044B497 /* Build configuration list for PBXNativeTarget "STURITemplate-mac-framework" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2C76994919B2A0F90044B497 /* Debug */,
@@ -390,7 +663,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2C76994B19B2A0F90044B497 /* Build configuration list for PBXNativeTarget "STURITemplateTests" */ = {
+		2C76994B19B2A0F90044B497 /* Build configuration list for PBXNativeTarget "STURITemplateTests-mac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2C76994C19B2A0F90044B497 /* Debug */,
@@ -398,6 +671,30 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		2C76996919B302D00044B497 /* Build configuration list for PBXNativeTarget "STURITemplate-mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C76996A19B302D00044B497 /* Debug */,
+				2C76996B19B302D00044B497 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		2C76998119B302FB0044B497 /* Build configuration list for PBXNativeTarget "STURITemplate-ios" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C76998219B302FB0044B497 /* Debug */,
+				2C76998319B302FB0044B497 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		2C76998419B302FB0044B497 /* Build configuration list for PBXNativeTarget "STURITemplateTests-ios" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C76998519B302FB0044B497 /* Debug */,
+				2C76998619B302FB0044B497 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};

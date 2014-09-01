@@ -17,7 +17,6 @@ FOUNDATION_EXPORT const unsigned char STURITemplateVersionString[];
 
 @interface STURITemplate : NSObject<STURITemplate>
 - (id)initWithTemplate:(NSString *)template;
-- (id)initWithTemplate:(NSString *)template baseURL:(NSURL *)baseURL;
-@property (nonatomic,copy,readonly) NSURL *url;
-- (STURITemplate *)urlTemplateByExpandingWithVariables:(NSDictionary *)variables;
+//@property (nonatomic,copy,readonly) NSURL *url;
+//- (STURITemplate *)templateByExpandingWithVariables:(NSDictionary *)variables;
 @end
