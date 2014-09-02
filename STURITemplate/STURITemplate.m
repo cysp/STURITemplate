@@ -424,6 +424,12 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 }
 @end
 
+
+typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
+    STURITemplateVariableComponentPairStyleNone,
+    STURITemplateVariableComponentPairStyleElidedEquals,
+    STURITemplateVariableComponentPairStyleTrailingEquals,
+};
 @implementation STURITemplateVariableComponent {
 @protected
     NSArray *_variables;
@@ -442,7 +448,7 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 - (NSArray *)variableNames {
     return _variableNames;
 }
-- (NSString *)stringWithVariables:(NSDictionary *)variables prefix:(NSString *)prefix separator:(NSString *)separator asPair:(BOOL)asPair encodingStyle:(STURITemplateEncodingStyle)encodingStyle {
+- (NSString *)stringWithVariables:(NSDictionary *)variables prefix:(NSString *)prefix separator:(NSString *)separator asPair:(STURITemplateVariableComponentPairStyle)asPair encodingStyle:(STURITemplateEncodingStyle)encodingStyle {
     NSMutableArray * const values = [[NSMutableArray alloc] initWithCapacity:_variables.count];
     for (STURITemplateComponentVariable *variable in _variables) {
         id const value = variables[variable.name];
@@ -452,11 +458,24 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
                 continue;
             }
             NSMutableString *value = [NSMutableString string];
-            if (asPair) {
-                [value appendFormat:@"%@=", variable.name];
-            }
-            if (string.length) {
-                [value appendString:string];
+            switch (asPair) {
+                case STURITemplateVariableComponentPairStyleNone: {
+                    if (string.length) {
+                        [value appendString:string];
+                    }
+                } break;
+                case STURITemplateVariableComponentPairStyleElidedEquals: {
+                    [value appendString:variable.name];
+                    if (string.length) {
+                        [value appendFormat:@"=%@", string];
+                    }
+                } break;
+                case STURITemplateVariableComponentPairStyleTrailingEquals: {
+                    [value appendFormat:@"%@=", variable.name];
+                    if (string.length) {
+                        [value appendString:string];
+                    }
+                } break;
             }
             [values addObject:value];
         }
@@ -472,78 +491,56 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 @implementation STURITemplateSimpleComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"" separator:@"," asPair:NO encodingStyle:STURITemplateEncodingStyleU];
+    return [super stringWithVariables:variables prefix:@"" separator:@"," asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEncodingStyleU];
 }
 @end
 
 @implementation STURITemplateReservedCharacterComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"" separator:@"," asPair:NO encodingStyle:STURITemplateEncodingStyleUR];
+    return [super stringWithVariables:variables prefix:@"" separator:@"," asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEncodingStyleUR];
 }
 @end
 
 @implementation STURITemplateFragmentComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"#" separator:@"," asPair:NO encodingStyle:STURITemplateEncodingStyleUR];
+    return [super stringWithVariables:variables prefix:@"#" separator:@"," asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEncodingStyleUR];
 }
 @end
 
 @implementation STURITemplatePathSegmentComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"/" separator:@"/" asPair:NO encodingStyle:STURITemplateEncodingStyleU];
+    return [super stringWithVariables:variables prefix:@"/" separator:@"/" asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEncodingStyleU];
 }
 @end
 
 @implementation STURITemplatePathExtensionComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"." separator:@"." asPair:NO encodingStyle:STURITemplateEncodingStyleU];
+    return [super stringWithVariables:variables prefix:@"." separator:@"." asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEncodingStyleU];
 }
 @end
 
 @implementation STURITemplateQueryComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"?" separator:@"&" asPair:YES encodingStyle:STURITemplateEncodingStyleU];
+    return [super stringWithVariables:variables prefix:@"?" separator:@"&" asPair:STURITemplateVariableComponentPairStyleTrailingEquals encodingStyle:STURITemplateEncodingStyleU];
 }
 @end
 
 @implementation STURITemplateQueryContinuationComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"&" separator:@"&" asPair:YES encodingStyle:STURITemplateEncodingStyleU];
+    return [super stringWithVariables:variables prefix:@"&" separator:@"&" asPair:STURITemplateVariableComponentPairStyleTrailingEquals encodingStyle:STURITemplateEncodingStyleU];
 }
 @end
 
 @implementation STURITemplatePathParameterComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    NSString * const prefix = @";";
-    NSString * const separator = @";";
-    NSMutableArray * const values = [[NSMutableArray alloc] initWithCapacity:_variables.count];
-    for (STURITemplateComponentVariable *variable in _variables) {
-        id const value = variables[variable.name];
-        if (value) {
-            NSString * const string = [variable stringWithValue:value encodingStyle:STURITemplateEncodingStyleU];
-            if (!string) {
-                continue;
-            }
-            NSMutableString *value = [NSMutableString string];
-            [value appendString:variable.name];
-            if (string.length) {
-                [value appendFormat:@"=%@", string];
-            }
-            [values addObject:value];
-        }
-    }
-    NSString *string = [values componentsJoinedByString:separator];
-    if (string.length) {
-        string = [(prefix ?: @"") stringByAppendingString:string];
-    }
-    return string;
+    return [super stringWithVariables:variables prefix:@";" separator:@";" asPair:STURITemplateVariableComponentPairStyleElidedEquals encodingStyle:STURITemplateEncodingStyleU];
 }
 @end
 
