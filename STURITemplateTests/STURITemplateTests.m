@@ -56,6 +56,26 @@
 
 
 - (void)testNegative {
+    NSDictionary * const variables = @{
+        @"id"                : @"thing",
+        @"var"               : @"value",
+        @"hello"             : @"Hello World!",
+        @"with space"        : @"fail",
+        @" leading_space"    : @"Hi!",
+        @"trailing_space "   : @"Bye!",
+        @"empty"             : @"",
+        @"path"              : @"/foo/bar",
+        @"x"                 : @"1024",
+        @"y"                 : @"768",
+        @"list"              : @[@"red", @"green", @"blue"],
+        @"keys"              : @{ @"semi" : @";", @"dot" : @".", @"comma" : @","},
+        @"example"           : @"red",
+        @"searchTerms"       : @"uri templates",
+        @"~thing"            : @"some-user",
+        @"default-graph-uri" : @[@"http://www.example/book/",@"http://www.example/papers/"],
+        @"query"             : @"PREFIX dc: <http://purl.org/dc/elements/1.1/> SELECT ?book ?who WHERE { ?book dc:creator ?who }"
+    };
+
     {
         NSString * const input = @"{/id*";
         STURITemplate * const t = [[STURITemplate alloc] initWithString:input];
@@ -156,15 +176,19 @@
         STURITemplate * const t = [[STURITemplate alloc] initWithString:input];
         XCTAssertNil(t);
     }
-    if (0) {
+    {
         NSString * const input = @"{keys:1}";
         STURITemplate * const t = [[STURITemplate alloc] initWithString:input];
-        XCTAssertNil(t);
+        XCTAssertNotNil(t);
+        NSURL * const u = [t urlByExpandingWithVariables:variables];
+        XCTAssertNil(u);
     }
-    if (0) {
+    {
         NSString * const input = @"{+keys:1}";
         STURITemplate * const t = [[STURITemplate alloc] initWithString:input];
-        XCTAssertNil(t);
+        XCTAssertNotNil(t);
+        NSURL * const u = [t urlByExpandingWithVariables:variables];
+        XCTAssertNil(u);
     }
     {
         NSString * const input = @"{;keys:1*}";

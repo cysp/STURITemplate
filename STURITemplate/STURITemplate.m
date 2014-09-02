@@ -31,36 +31,26 @@ static NSArray *STURITArrayByMappingArray(NSArray *array, STURITArrayMapBlock bl
 @property (nonatomic,copy,readonly) NSArray *variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables;
 @end
-
 @interface STURITemplateLiteralComponent : NSObject<STURITemplateComponent>
 - (id)initWithString:(NSString *)string;
 @end
-
 @interface STURITemplateVariableComponent : NSObject
 - (id)initWithVariables:(NSArray *)variables __attribute__((objc_designated_initializer));
 @end
-
 @interface STURITemplateSimpleComponent : STURITemplateVariableComponent<STURITemplateComponent>
 @end
-
 @interface STURITemplateReservedCharacterComponent : STURITemplateVariableComponent<STURITemplateComponent>
 @end
-
 @interface STURITemplateFragmentComponent : STURITemplateVariableComponent<STURITemplateComponent>
 @end
-
 @interface STURITemplatePathSegmentComponent : STURITemplateVariableComponent<STURITemplateComponent>
 @end
-
 @interface STURITemplatePathExtensionComponent : STURITemplateVariableComponent<STURITemplateComponent>
 @end
-
 @interface STURITemplateQueryComponent : STURITemplateVariableComponent<STURITemplateComponent>
 @end
-
 @interface STURITemplateQueryContinuationComponent : STURITemplateVariableComponent<STURITemplateComponent>
 @end
-
 @interface STURITemplatePathParameterComponent : STURITemplateVariableComponent<STURITemplateComponent>
 @end
 
@@ -460,7 +450,7 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
         if (value) {
             NSString * const string = [variable stringWithValue:value encodingStyle:encodingStyle];
             if (!string) {
-                continue;
+                return nil;
             }
             NSMutableString *value = [NSMutableString string];
             switch (asPair) {
@@ -660,7 +650,11 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
 - (NSURL *)urlByExpandingWithVariables:(NSDictionary *)variables {
     NSMutableString * const urlString = [[NSMutableString alloc] init];
     for (id<STURITemplateComponent> component in _components) {
-        [urlString appendString:[component stringWithVariables:variables]];
+        NSString * const componentString = [component stringWithVariables:variables];
+        if (!componentString) {
+            return nil;
+        }
+        [urlString appendString:componentString];
     }
     return [NSURL URLWithString:urlString];
 }
