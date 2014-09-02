@@ -7,6 +7,24 @@
 #import "STURITemplate.h"
 
 
+typedef id(^STArrayMapBlock)(id o);
+@interface NSArray (STURITemplate)
+- (NSArray *)sturi_map:(STArrayMapBlock)block;
+@end
+@implementation NSArray (STURITemplate)
+- (NSArray *)sturi_map:(STArrayMapBlock)block {
+    NSMutableArray * const array = [[NSMutableArray alloc] initWithCapacity:self.count];
+    [self enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        id mappedObject = block(obj);
+        if (mappedObject) {
+            [array addObject:mappedObject];
+        }
+    }];
+    return array;
+}
+@end
+
+
 @protocol STURITemplateComponent <NSObject>
 @property (nonatomic,copy,readonly) NSArray *variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables;
@@ -48,55 +66,44 @@
 @interface STURITemplateComponentVariable : NSObject
 - (id)initWithName:(NSString *)name;
 @property (nonatomic,copy,readonly) NSString *name;
-- (NSString *)stringWithValue:(id)value;
+- (NSString *)stringWithValue:(id)value preserveCharacters:(BOOL)preserveCharacters;
 @end
 
 @interface STURITemplateComponentTruncatedVariable : STURITemplateComponentVariable
 - (id)initWithName:(NSString *)name length:(NSUInteger)length;
 @end
 
-@interface STURITemplateComponentExplodableVariable : STURITemplateComponentVariable
+@interface STURITemplateComponentExplodedVariable : STURITemplateComponentVariable
 @end
 
 
 static NSArray *STURITemplateComponentsFromString(NSString *string);
-static id<STURITemplateComponent> STURITemplateComponentWithString(NSString *string);
+//static id<STURITemplateComponent> STURITemplateComponentWithString(NSString *string);
 
 
 static NSCharacterSet *STURITemplateComponentOperatorCharacterSet = nil;
 static NSCharacterSet *STURITemplateComponentReservedOperatorCharacterSet = nil;
+static NSCharacterSet *STURITemplateVariableNameCharacterSet = nil;
 
 __attribute__((constructor))
 static void STURITemplateInit(void) {
     STURITemplateComponentOperatorCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@"+#./;?&"];
     STURITemplateComponentReservedOperatorCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@"=,!@|"];
+    {
+        NSMutableCharacterSet * const variableNameCharacterSet = [[NSMutableCharacterSet alloc] init];
+        [variableNameCharacterSet addCharactersInString:@"abcdefghijklmnopqrstuvwxyz"];
+        [variableNameCharacterSet addCharactersInString:@"ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
+        [variableNameCharacterSet addCharactersInString:@"0123456789"];
+        [variableNameCharacterSet addCharactersInString:@"_%."];
+        STURITemplateVariableNameCharacterSet = variableNameCharacterSet.copy;
+    }
 }
 
 
-//    ALPHA          =  %x41-5A / %x61-7A   ; A-Z / a-z
-//    DIGIT          =  %x30-39             ; 0-9
-//    HEXDIG         =  DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
-//    ; case-insensitive
-//
-//    pct-encoded    =  "%" HEXDIG HEXDIG
-//    unreserved     =  ALPHA / DIGIT / "-" / "." / "_" / "~"
-//    reserved       =  gen-delims / sub-delims
-//    gen-delims     =  ":" / "/" / "?" / "#" / "[" / "]" / "@"
-//    sub-delims     =  "!" / "$" / "&" / "'" / "(" / ")"
-//                     /  "*" / "+" / "," / ";" / "="
-//
-//    ucschar        =  %xA0-D7FF / %xF900-FDCF / %xFDF0-FFEF
-//    /  %x10000-1FFFD / %x20000-2FFFD / %x30000-3FFFD
-//    /  %x40000-4FFFD / %x50000-5FFFD / %x60000-6FFFD
-//    /  %x70000-7FFFD / %x80000-8FFFD / %x90000-9FFFD
-//    /  %xA0000-AFFFD / %xB0000-BFFFD / %xC0000-CFFFD
-//    /  %xD0000-DFFFD / %xE1000-EFFFD
-//
-//    iprivate       =  %xE000-F8FF / %xF0000-FFFFD / %x100000-10FFFD
 
-
-static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, NSString *charactersToLeaveUnescaped, NSString *legalURLCharactersToBeEscaped) {
-    return (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(NULL, (__bridge CFStringRef)string, (__bridge CFStringRef)charactersToLeaveUnescaped, (__bridge CFStringRef)legalURLCharactersToBeEscaped, kCFStringEncodingUTF8);
+static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, BOOL preserveCharacters) {
+    CFStringRef const legalURLCharactersToBeEscaped = preserveCharacters ? NULL : CFSTR("!#$&'()*+,/:;=?@[]%");
+    return (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(NULL, (__bridge CFStringRef)string, NULL, legalURLCharactersToBeEscaped, kCFStringEncodingUTF8);
 }
 
 
@@ -143,53 +150,33 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, NSS
 @end
 
 
-static NSArray *STURITemplateComponentsFromString(NSString *string) {
-    if (string.length == 0) {
-        return @[];
-    }
-
-    NSScanner * const scanner = [[NSScanner alloc] initWithString:string];
-
-    NSMutableArray * const components = [[NSMutableArray alloc] init];
-    while (!scanner.atEnd) {
-        NSString *s = nil;
-        if ([scanner scanUpToString:@"{" intoString:&s]) {
-            [components addObject:[[STURITemplateLiteralComponent alloc] initWithString:s]];
-        }
-//        if (![scanner scanString:@"{" intoString:NULL]) {
-//            return nil;
-//        }
-        if (scanner.atEnd) {
-            break;
-        }
-
-        s = nil;
-        if (![scanner scanUpToString:@"}" intoString:&s]) {
-            return nil;
-        }
-        if (![scanner scanString:@"}" intoString:NULL]) {
-            return nil;
-        }
-        if (s.length) {
-            s = [s stringByAppendingString:@"}"];
-            id<STURITemplateComponent> const component = STURITemplateComponentWithString(s);
-            if (component) {
-                [components addObject:component];
-            }
-        }
-    };
-
-    return components.copy;
-}
-
 static STURITemplateComponentVariable *STURITemplateVariableWithSpecifier(NSString *specifier) {
     NSString *name = nil;
     NSScanner * const scanner = [[NSScanner alloc] initWithString:specifier];
-    [scanner scanUpToCharactersFromSet:[NSCharacterSet characterSetWithCharactersInString:@":*"] intoString:&name];
-    if (scanner.atEnd) {
-        return [[STURITemplateComponentVariable alloc] initWithName:name];
+    [scanner scanCharactersFromSet:STURITemplateVariableNameCharacterSet intoString:&name];
+
+    BOOL isPrefix = NO;
+    unsigned long long prefixLength = 0;
+    if ([scanner scanString:@":" intoString:NULL]) {
+        if (![scanner scanUnsignedLongLong:&prefixLength]) {
+            return nil;
+        }
+        isPrefix = YES;
     }
-    return nil;
+    BOOL const isExploded = [scanner scanString:@"*" intoString:NULL];
+    if (!scanner.atEnd) {
+        return nil;
+    }
+    if (isPrefix && isExploded) {
+        return nil;
+    }
+    if (isPrefix) {
+        return [[STURITemplateComponentTruncatedVariable alloc] initWithName:name length:prefixLength];
+    }
+    if (isExploded) {
+        return [[STURITemplateComponentExplodedVariable alloc] initWithName:name];
+    }
+    return [[STURITemplateComponentVariable alloc] initWithName:name];
 }
 
 static NSArray *STURITemplateVariablesFromSpecification(NSString *variableSpecification) {
@@ -197,6 +184,9 @@ static NSArray *STURITemplateVariablesFromSpecification(NSString *variableSpecif
     NSMutableArray * const variables = [[NSMutableArray alloc] initWithCapacity:variableSpecifiers.count];
     for (NSString *variableSpecifier in variableSpecifiers) {
         STURITemplateComponentVariable * const variable = STURITemplateVariableWithSpecifier(variableSpecifier);
+        if (!variable) {
+            return nil;
+        }
         if (variable) {
             [variables addObject:variable];
         }
@@ -204,50 +194,330 @@ static NSArray *STURITemplateVariablesFromSpecification(NSString *variableSpecif
     return variables.copy;
 }
 
-static id<STURITemplateComponent> STURITemplateComponentWithString(NSString *string) {
-    NSScanner * const scanner = [[NSScanner alloc] initWithString:string];
+//static id<STURITemplateComponent> STURITemplateComponentWithString(NSString *string) {
+//    NSScanner * const scanner = [[NSScanner alloc] initWithString:string];
+//
+//    if (![scanner scanString:@"{" intoString:NULL]) {
+//        return [[STURITemplateLiteralComponent alloc] initWithString:string];
+//    }
+//
+//    NSString *operator = nil;
+//    if ([scanner scanCharactersFromSet:STURITemplateComponentReservedOperatorCharacterSet intoString:NULL]) {
+//        return nil;
+//    }
+//    [scanner scanCharactersFromSet:STURITemplateComponentOperatorCharacterSet intoString:&operator];
+//
+//    NSString *variableSpecification = nil;
+//    [scanner scanUpToString:@"}" intoString:&variableSpecification];
+//    [scanner scanString:@"}" intoString:NULL];
+//    if (!scanner.atEnd) {
+//        return nil;
+//    }
+//
+//    NSArray * const variables = STURITemplateVariablesFromSpecification(variableSpecification);
+//    if (!variables) {
+//        return nil;
+//    }
+//
+//    if (operator.length > 0) {
+//        switch ([operator characterAtIndex:0]) {
+//            case '+':
+//                return [[STURITemplateReservedCharacterComponent alloc] initWithVariables:variables];
+//            case '#':
+//                return [[STURITemplateFragmentComponent alloc] initWithVariables:variables];
+//            case '.':
+//                return [[STURITemplatePathExtensionComponent alloc] initWithVariables:variables];
+//            case '/':
+//                return [[STURITemplatePathSegmentComponent alloc] initWithVariables:variables];
+//            case ';':
+//                return [[STURITemplatePathParameterComponent alloc] initWithVariables:variables];
+//            case '?':
+//                return [[STURITemplateQueryComponent alloc] initWithVariables:variables];
+//            case '&':
+//                return  [[STURITemplateQueryContinuationComponent alloc] initWithVariables:variables];
+//        }
+//        return nil;
+//    }
+//
+//    return [[STURITemplateSimpleComponent alloc] initWithVariables:variables];
+//}
 
-    if (![scanner scanString:@"{" intoString:NULL]) {
-        return [[STURITemplateLiteralComponent alloc] initWithString:string];
+//static NSArray *STURITemplateComponentsFromString(NSString *string) {
+//    if (string.length == 0) {
+//        return @[];
+//    }
+//
+//    NSScanner * const scanner = [[NSScanner alloc] initWithString:string];
+//
+//    NSMutableArray * const components = [[NSMutableArray alloc] init];
+//    while (!scanner.atEnd) {
+//        NSString *s = nil;
+//        if ([scanner scanUpToString:@"{" intoString:&s]) {
+//            [components addObject:[[STURITemplateLiteralComponent alloc] initWithString:s]];
+//        }
+//        if (scanner.atEnd) {
+//            break;
+//        }
+//
+//        s = nil;
+//        if (![scanner scanUpToString:@"}" intoString:&s]) {
+//            return nil;
+//        }
+//        if (![scanner scanString:@"}" intoString:NULL]) {
+//            return nil;
+//        }
+//        if (s.length) {
+//            s = [s stringByAppendingString:@"}"];
+//            id<STURITemplateComponent> const component = STURITemplateComponentWithString(s);
+//            if (!component) {
+//                return nil;
+//            }
+//            if (component) {
+//                [components addObject:component];
+//            }
+//        }
+//    };
+//    
+//    return components.copy;
+//}
+
+
+
+
+@interface STURITemplateScanner : NSObject
+- (instancetype)initWithString:(NSString *)string __attribute__((objc_designated_initializer));
+- (BOOL)scanString:(NSString *)string intoString:(NSString * __autoreleasing *)result;
+- (BOOL)scanCharactersFromSet:(NSCharacterSet *)set intoString:(NSString **)result;
+- (BOOL)scanUpToString:(NSString *)string intoString:(NSString * __autoreleasing *)result;
+- (BOOL)scanUpToCharactersFromSet:(NSCharacterSet *)set intoString:(NSString * __autoreleasing *)result;
+@property (nonatomic,assign,getter=isAtEnd,readonly) BOOL atEnd;
+- (BOOL)sturit_scanTemplateComponent:(id<STURITemplateComponent> __autoreleasing *)component;
+@end
+@implementation STURITemplateScanner {
+@private
+    NSScanner *_scanner;
+}
+- (instancetype)initWithString:(NSString *)string {
+    NSScanner * const scanner = [[NSScanner alloc] initWithString:string];
+    if (!scanner) {
+        return nil;
+    }
+    if ((self = [super init])) {
+        _scanner = scanner;
+    }
+    return self;
+}
+- (BOOL)scanString:(NSString *)string intoString:(NSString * __autoreleasing *)result {
+    return [_scanner scanString:string intoString:result];
+}
+- (BOOL)scanCharactersFromSet:(NSCharacterSet *)set intoString:(NSString **)result {
+    return [_scanner scanCharactersFromSet:set intoString:result];
+}
+- (BOOL)scanUpToString:(NSString *)string intoString:(NSString * __autoreleasing *)result {
+    return [_scanner scanUpToString:string intoString:result];
+}
+- (BOOL)scanUpToCharactersFromSet:(NSCharacterSet *)set intoString:(NSString * __autoreleasing *)result {
+    return [_scanner scanUpToCharactersFromSet:set intoString:result];
+}
+- (BOOL)isAtEnd {
+    return [_scanner isAtEnd];
+}
+- (BOOL)sturit_scanPercentEncoded:(NSString * __autoreleasing *)result {
+    NSUInteger const scanLocation = _scanner.scanLocation;
+
+    NSMutableString * const string = @"%".mutableCopy;
+
+    NSCharacterSet * const hexCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@"0123456789abcdefABCDEF"];
+
+    if (![_scanner scanString:@"%" intoString:NULL]) {
+        [_scanner setScanLocation:scanLocation];
+        return NO;
+    }
+
+    NSRange candidateRange = (NSRange){
+        .location = _scanner.scanLocation,
+    };
+    candidateRange.length = MIN(2U, _scanner.string.length - candidateRange.location);
+    if (candidateRange.length != 2) {
+        [_scanner setScanLocation:scanLocation];
+        return NO;
+    }
+
+    NSString * const candidateString = [_scanner.string substringWithRange:candidateRange];
+    unichar candidateCharacters[2] = { 0 };
+    [candidateString getCharacters:candidateCharacters range:(NSRange){ .length = 2 }];
+
+    if (![hexCharacterSet characterIsMember:candidateCharacters[0]]) {
+        [_scanner setScanLocation:scanLocation];
+        return NO;
+    }
+    if (![hexCharacterSet characterIsMember:candidateCharacters[1]]) {
+        [_scanner setScanLocation:scanLocation];
+        return NO;
+    }
+
+    [string appendString:candidateString];
+
+    if (result) {
+        *result = string.copy;
+    }
+    return YES;
+}
+- (BOOL)sturit_scanLiteralComponent:(id<STURITemplateComponent> __autoreleasing *)result {
+    NSUInteger const scanLocation = _scanner.scanLocation;
+
+    NSMutableCharacterSet * const a = [[[NSCharacterSet illegalCharacterSet] invertedSet] mutableCopy];
+    [a formIntersectionWithCharacterSet:[[NSCharacterSet controlCharacterSet] invertedSet]];
+    [a formIntersectionWithCharacterSet:[[NSCharacterSet characterSetWithCharactersInString:@" \"'%<>\\^`{|}"] invertedSet]];
+
+    NSMutableString * const string = [NSMutableString string];
+    while (!_scanner.atEnd) {
+        BOOL didSomething = NO;
+        NSString *scratch = nil;
+
+        if ([_scanner scanCharactersFromSet:a intoString:&scratch]) {
+            [string appendString:scratch];
+            didSomething = YES;
+        } else if ([self sturit_scanPercentEncoded:&scratch]) {
+            [string appendString:scratch];
+            didSomething = YES;
+        }
+
+        if (!didSomething) {
+            break;
+        }
+    }
+
+    if (!string.length) {
+        [_scanner setScanLocation:scanLocation];
+        return NO;
+    }
+
+    STURITemplateLiteralComponent * const literalComponent = [[STURITemplateLiteralComponent alloc] initWithString:string];
+    if (!literalComponent) {
+        [_scanner setScanLocation:scanLocation];
+        return NO;
+    }
+
+    if (result) {
+        *result = literalComponent;
+    }
+    return YES;
+}
+- (BOOL)sturit_scanVariableComponent:(id<STURITemplateComponent> __autoreleasing *)result {
+    NSUInteger const scanLocation = _scanner.scanLocation;
+    if (![_scanner scanString:@"{" intoString:NULL]) {
+        [_scanner setScanLocation:scanLocation];
+        return NO;
     }
 
     NSString *operator = nil;
-    if ([scanner scanCharactersFromSet:STURITemplateComponentReservedOperatorCharacterSet intoString:NULL]) {
-        return nil;
+    if ([_scanner scanCharactersFromSet:STURITemplateComponentReservedOperatorCharacterSet intoString:NULL]) {
+        [_scanner setScanLocation:scanLocation];
+        return NO;
     }
-    [scanner scanCharactersFromSet:STURITemplateComponentOperatorCharacterSet intoString:&operator];
+    [_scanner scanCharactersFromSet:STURITemplateComponentOperatorCharacterSet intoString:&operator];
 
     NSString *variableSpecification = nil;
-    [scanner scanUpToString:@"}" intoString:&variableSpecification];
-    [scanner scanString:@"}" intoString:NULL];
-    if (!scanner.atEnd) {
-        return nil;
+    if (![_scanner scanUpToString:@"}" intoString:&variableSpecification]) {
+        [_scanner setScanLocation:scanLocation];
+        return NO;
+    }
+    if (![_scanner scanString:@"}" intoString:NULL]) {
+        [_scanner setScanLocation:scanLocation];
+        return NO;
     }
 
     NSArray * const variables = STURITemplateVariablesFromSpecification(variableSpecification);
+    if (!variables) {
+        [_scanner setScanLocation:scanLocation];
+        return NO;
+    }
 
-//    +#./;?&
+    id<STURITemplateComponent> component = nil;
     if (operator.length > 0) {
         switch ([operator characterAtIndex:0]) {
             case '+':
-                return [[STURITemplateReservedCharacterComponent alloc] initWithVariables:variables];
+                component = [[STURITemplateReservedCharacterComponent alloc] initWithVariables:variables];
+                break;
             case '#':
-                return [[STURITemplateFragmentComponent alloc] initWithVariables:variables];
+                component = [[STURITemplateFragmentComponent alloc] initWithVariables:variables];
+                break;
             case '.':
-                return [[STURITemplatePathExtensionComponent alloc] initWithVariables:variables];
+                component = [[STURITemplatePathExtensionComponent alloc] initWithVariables:variables];
+                break;
             case '/':
-                return [[STURITemplatePathSegmentComponent alloc] initWithVariables:variables];
+                component = [[STURITemplatePathSegmentComponent alloc] initWithVariables:variables];
+                break;
             case ';':
-                return [[STURITemplatePathParameterComponent alloc] initWithVariables:variables];
+                component = [[STURITemplatePathParameterComponent alloc] initWithVariables:variables];
+                break;
             case '?':
-                return [[STURITemplateQueryComponent alloc] initWithVariables:variables];
+                component = [[STURITemplateQueryComponent alloc] initWithVariables:variables];
+                break;
             case '&':
-                return  [[STURITemplateQueryContinuationComponent alloc] initWithVariables:variables];
+                component = [[STURITemplateQueryContinuationComponent alloc] initWithVariables:variables];
+                break;
         }
+        if (!component) {
+            [_scanner setScanLocation:scanLocation];
+            return NO;
+        }
+    }
+
+    if (!component) {
+        component = [[STURITemplateSimpleComponent alloc] initWithVariables:variables];
+    }
+
+    if (!component) {
+        [_scanner setScanLocation:scanLocation];
+        return NO;
+    }
+
+    if (result) {
+        *result = component;
+    }
+    return YES;
+}
+- (BOOL)sturit_scanTemplateComponent:(id<STURITemplateComponent> __autoreleasing *)result {
+    NSUInteger const scanLocation = _scanner.scanLocation;
+
+    if ([self sturit_scanVariableComponent:result]) {
+        return YES;
+    }
+
+    if ([self sturit_scanLiteralComponent:result]) {
+        return YES;
+    }
+
+    [_scanner setScanLocation:scanLocation];
+    return NO;
+}
+
+@end
+
+
+
+static NSArray *STURITemplateComponentsFromString(NSString *string) {
+    if (string.length == 0) {
+        return @[];
+    }
+
+    STURITemplateScanner * const scanner = [[STURITemplateScanner alloc] initWithString:string];
+    if (!scanner) {
         return nil;
     }
 
-    return [[STURITemplateSimpleComponent alloc] initWithVariables:variables];
+    NSMutableArray * const components = [[NSMutableArray alloc] init];
+    while (!scanner.atEnd) {
+        id<STURITemplateComponent> component = nil;
+        if (![scanner sturit_scanTemplateComponent:&component]) {
+            return nil;
+        }
+        [components addObject:component];
+    };
+
+    return components.copy;
 }
 
 
@@ -268,7 +538,7 @@ static id<STURITemplateComponent> STURITemplateComponentWithString(NSString *str
     return @[];
 }
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return STURITemplateStringByAddingPercentEscapes(_string, nil, nil);
+    return STURITemplateStringByAddingPercentEscapes(_string, YES);
 }
 @end
 
@@ -291,22 +561,20 @@ static id<STURITemplateComponent> STURITemplateComponentWithString(NSString *str
     return _variableNames;
 }
 - (NSString *)stringWithVariables:(NSDictionary *)variables prefix:(NSString *)prefix separator:(NSString *)separator asPair:(BOOL)asPair preserveCharacters:(BOOL)preserveCharacters {
-    NSString * const charactersToEscape = preserveCharacters ? nil : @"!#$&'()*+,/:;=?@[]%";
-
     NSMutableArray * const values = [[NSMutableArray alloc] initWithCapacity:_variables.count];
     for (STURITemplateComponentVariable *variable in _variables) {
         id const value = variables[variable.name];
         if (value) {
-            NSString * const string = [variable stringWithValue:value];
+            NSString * const string = [variable stringWithValue:value preserveCharacters:preserveCharacters];
             if (!string) {
                 continue;
             }
             NSMutableString *value = [NSMutableString string];
             if (asPair) {
-                [value appendFormat:@"%@=", STURITemplateStringByAddingPercentEscapes(variable.name, nil, charactersToEscape)];
+                [value appendFormat:@"%@=", variable.name];
             }
             if (string.length) {
-                [value appendString:STURITemplateStringByAddingPercentEscapes(string, nil, charactersToEscape)];
+                [value appendString:string];
             }
             [values addObject:value];
         }
@@ -371,7 +639,29 @@ static id<STURITemplateComponent> STURITemplateComponentWithString(NSString *str
 @implementation STURITemplatePathParameterComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@";" separator:@";" asPair:YES preserveCharacters:NO];
+    NSString * const prefix = @";";
+    NSString * const separator = @";";
+    NSMutableArray * const values = [[NSMutableArray alloc] initWithCapacity:_variables.count];
+    for (STURITemplateComponentVariable *variable in _variables) {
+        id const value = variables[variable.name];
+        if (value) {
+            NSString * const string = [variable stringWithValue:value preserveCharacters:NO];
+            if (!string) {
+                continue;
+            }
+            NSMutableString *value = [NSMutableString string];
+            [value appendString:variable.name];
+            if (string.length) {
+                [value appendFormat:@"=%@", string];
+            }
+            [values addObject:value];
+        }
+    }
+    NSString *string = [values componentsJoinedByString:separator];
+    if (string.length) {
+        string = [(prefix ?: @"") stringByAppendingString:string];
+    }
+    return string;
 }
 @end
 
@@ -388,17 +678,21 @@ static id<STURITemplateComponent> STURITemplateComponentWithString(NSString *str
     }
     return self;
 }
-- (NSString *)stringWithValue:(id)value {
+- (NSString *)stringWithValue:(id)value preserveCharacters:(BOOL)preserveCharacters {
     if (!value) {
         return nil;
     }
-    return [NSString stringWithFormat:@"%@", value];
-//    if ([value isKindOfClass:[NSString class]]) {
-//        return value;
-//    }
-//    if ([value isKindOfClass:[NSNumber class]]) {
-//        return ((NSNumber *)value).stringValue;
-//    }
+    if ([value isKindOfClass:[NSString class]]) {
+        return STURITemplateStringByAddingPercentEscapes(value, preserveCharacters);
+    }
+    if ([value isKindOfClass:[NSNumber class]]) {
+        return ((NSNumber *)value).stringValue;
+    }
+    if ([value isKindOfClass:[NSArray class]]) {
+        return [[((NSArray *)value) sturi_map:^(id o) {
+            return STURITemplateStringByAddingPercentEscapes([NSString stringWithFormat:@"%@", o], preserveCharacters);
+        }] componentsJoinedByString:@","];
+    }
     return nil;
 }
 @end
@@ -413,23 +707,18 @@ static id<STURITemplateComponent> STURITemplateComponentWithString(NSString *str
     }
     return self;
 }
-- (NSString *)stringWithValue:(id)value {
+- (NSString *)stringWithValue:(id)value preserveCharacters:(BOOL)preserveCharacters {
     if (!value) {
         return nil;
     }
     NSString * const s = [NSString stringWithFormat:@"%@", value];
-    return [s substringToIndex:MIN(_length, s.length)];
+    return STURITemplateStringByAddingPercentEscapes([s substringToIndex:MIN(_length, s.length)], preserveCharacters);
 }
 @end
 
-@implementation STURITemplateComponentExplodableVariable
-- (NSString *)stringWithValue:(id)value {
-    if ([value isKindOfClass:[NSString class]]) {
-        return value;
-    }
-    if ([value isKindOfClass:[NSArray class]]) {
-        return [(NSArray *)value componentsJoinedByString:@","];
-    }
+@implementation STURITemplateComponentExplodedVariable
+- (NSString *)stringWithValue:(id)value preserveCharacters:(BOOL)preserveCharacters {
+    NSAssert(0, @"unimplemented");
     return nil;
 }
 @end
