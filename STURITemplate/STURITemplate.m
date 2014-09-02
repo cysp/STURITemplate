@@ -65,17 +65,17 @@ static NSArray *STURITArrayByMappingArray(NSArray *array, STURITArrayMapBlock bl
 @end
 
 
-typedef NS_ENUM(NSInteger, STURITemplateEncodingStyle) {
-    STURITemplateEncodingStyleU,
-    STURITemplateEncodingStyleUR,
+typedef NS_ENUM(NSInteger, STURITemplateEscapingStyle) {
+    STURITemplateEscapingStyleU,
+    STURITemplateEscapingStyleUR,
 };
-static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STURITemplateEncodingStyle style) {
+static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STURITemplateEscapingStyle style) {
     CFStringRef legalURLCharactersToBeEscaped = nil;
     switch (style) {
-        case STURITemplateEncodingStyleU:
+        case STURITemplateEscapingStyleU:
             legalURLCharactersToBeEscaped = CFSTR("!#$&'()*+,/:;=?@[]%");
             break;
-        case STURITemplateEncodingStyleUR:
+        case STURITemplateEscapingStyleUR:
             break;
     }
     return (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(NULL, (__bridge CFStringRef)string, NULL, legalURLCharactersToBeEscaped, kCFStringEncodingUTF8);
@@ -85,7 +85,7 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 @interface STURITemplateComponentVariable : NSObject
 - (id)initWithName:(NSString *)name;
 @property (nonatomic,copy,readonly) NSString *name;
-- (NSString *)stringWithValue:(id)value encodingStyle:(STURITemplateEncodingStyle)encodingStyle;
+- (NSString *)stringWithValue:(id)value encodingStyle:(STURITemplateEscapingStyle)encodingStyle;
 @end
 
 @interface STURITemplateComponentTruncatedVariable : STURITemplateComponentVariable
@@ -275,7 +275,11 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
             [_scanner setScanLocation:scanLocation];
             return NO;
         }
-        STURITemplateComponentVariable * const variable = [[STURITemplateComponentTruncatedVariable alloc] initWithName:name length:prefixLength];
+        if (prefixLength >= 10000) {
+            [_scanner setScanLocation:scanLocation];
+            return NO;
+        }
+        STURITemplateComponentVariable * const variable = [[STURITemplateComponentTruncatedVariable alloc] initWithName:name length:(NSUInteger)prefixLength];
         if (result) {
             *result = variable;
         }
@@ -420,7 +424,7 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
     return @[];
 }
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return STURITemplateStringByAddingPercentEscapes(_string, STURITemplateEncodingStyleUR);
+    return STURITemplateStringByAddingPercentEscapes(_string, STURITemplateEscapingStyleUR);
 }
 @end
 
@@ -430,6 +434,7 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     STURITemplateVariableComponentPairStyleElidedEquals,
     STURITemplateVariableComponentPairStyleTrailingEquals,
 };
+
 @implementation STURITemplateVariableComponent {
 @protected
     NSArray *_variables;
@@ -448,7 +453,7 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
 - (NSArray *)variableNames {
     return _variableNames;
 }
-- (NSString *)stringWithVariables:(NSDictionary *)variables prefix:(NSString *)prefix separator:(NSString *)separator asPair:(STURITemplateVariableComponentPairStyle)asPair encodingStyle:(STURITemplateEncodingStyle)encodingStyle {
+- (NSString *)stringWithVariables:(NSDictionary *)variables prefix:(NSString *)prefix separator:(NSString *)separator asPair:(STURITemplateVariableComponentPairStyle)asPair encodingStyle:(STURITemplateEscapingStyle)encodingStyle {
     NSMutableArray * const values = [[NSMutableArray alloc] initWithCapacity:_variables.count];
     for (STURITemplateComponentVariable *variable in _variables) {
         id const value = variables[variable.name];
@@ -491,56 +496,56 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
 @implementation STURITemplateSimpleComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"" separator:@"," asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEncodingStyleU];
+    return [super stringWithVariables:variables prefix:@"" separator:@"," asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEscapingStyleU];
 }
 @end
 
 @implementation STURITemplateReservedCharacterComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"" separator:@"," asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEncodingStyleUR];
+    return [super stringWithVariables:variables prefix:@"" separator:@"," asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEscapingStyleUR];
 }
 @end
 
 @implementation STURITemplateFragmentComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"#" separator:@"," asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEncodingStyleUR];
+    return [super stringWithVariables:variables prefix:@"#" separator:@"," asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEscapingStyleUR];
 }
 @end
 
 @implementation STURITemplatePathSegmentComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"/" separator:@"/" asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEncodingStyleU];
+    return [super stringWithVariables:variables prefix:@"/" separator:@"/" asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEscapingStyleU];
 }
 @end
 
 @implementation STURITemplatePathExtensionComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"." separator:@"." asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEncodingStyleU];
+    return [super stringWithVariables:variables prefix:@"." separator:@"." asPair:STURITemplateVariableComponentPairStyleNone encodingStyle:STURITemplateEscapingStyleU];
 }
 @end
 
 @implementation STURITemplateQueryComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"?" separator:@"&" asPair:STURITemplateVariableComponentPairStyleTrailingEquals encodingStyle:STURITemplateEncodingStyleU];
+    return [super stringWithVariables:variables prefix:@"?" separator:@"&" asPair:STURITemplateVariableComponentPairStyleTrailingEquals encodingStyle:STURITemplateEscapingStyleU];
 }
 @end
 
 @implementation STURITemplateQueryContinuationComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"&" separator:@"&" asPair:STURITemplateVariableComponentPairStyleTrailingEquals encodingStyle:STURITemplateEncodingStyleU];
+    return [super stringWithVariables:variables prefix:@"&" separator:@"&" asPair:STURITemplateVariableComponentPairStyleTrailingEquals encodingStyle:STURITemplateEscapingStyleU];
 }
 @end
 
 @implementation STURITemplatePathParameterComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@";" separator:@";" asPair:STURITemplateVariableComponentPairStyleElidedEquals encodingStyle:STURITemplateEncodingStyleU];
+    return [super stringWithVariables:variables prefix:@";" separator:@";" asPair:STURITemplateVariableComponentPairStyleElidedEquals encodingStyle:STURITemplateEscapingStyleU];
 }
 @end
 
@@ -557,7 +562,7 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     }
     return self;
 }
-- (NSString *)stringWithValue:(id)value encodingStyle:(STURITemplateEncodingStyle)encodingStyle {
+- (NSString *)stringWithValue:(id)value encodingStyle:(STURITemplateEscapingStyle)encodingStyle {
     if (!value) {
         return nil;
     }
@@ -600,7 +605,7 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     if (!string) {
         return nil;
     }
-    return STURITemplateStringByAddingPercentEscapes([string substringToIndex:MIN(_length, string.length)], preserveCharacters ? STURITemplateEncodingStyleUR : STURITemplateEncodingStyleU);
+    return STURITemplateStringByAddingPercentEscapes([string substringToIndex:MIN(_length, string.length)], preserveCharacters ? STURITemplateEscapingStyleUR : STURITemplateEscapingStyleU);
 }
 @end
 
@@ -616,7 +621,6 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
 @private
     NSArray *_components;
 }
-
 - (id)init {
     return [self initWithString:nil error:NULL];
 }
@@ -643,7 +647,6 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     }
     return self;
 }
-
 - (NSArray *)variableNames {
     NSMutableArray * const variableNames = [[NSMutableArray alloc] init];
     for (id<STURITemplateComponent> component in _components) {
@@ -651,11 +654,9 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     }
     return variableNames.copy;
 }
-
 - (NSURL *)url {
     return [NSURL URLWithString:@""];
 }
-
 - (NSURL *)urlByExpandingWithVariables:(NSDictionary *)variables {
     NSMutableString * const urlString = [[NSMutableString alloc] init];
     for (id<STURITemplateComponent> component in _components) {
@@ -663,5 +664,4 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     }
     return [NSURL URLWithString:urlString];
 }
-
 @end
