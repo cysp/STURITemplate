@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C26779219B5EE8800D24A31 /* STURITemplateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C76994419B2A0F90044B497 /* STURITemplateTests.m */; };
 		2C76994519B2A0F90044B497 /* STURITemplateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C76994419B2A0F90044B497 /* STURITemplateTests.m */; };
 		2C76995019B2A7070044B497 /* STURITemplate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C76994E19B2A7070044B497 /* STURITemplate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2C76995119B2A7070044B497 /* STURITemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C76994F19B2A7070044B497 /* STURITemplate.m */; };
@@ -374,6 +375,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C26779219B5EE8800D24A31 /* STURITemplateTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -679,6 +681,7 @@
 				2C76996B19B302D00044B497 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2C76998119B302FB0044B497 /* Build configuration list for PBXNativeTarget "STURITemplate-ios" */ = {
 			isa = XCConfigurationList;
@@ -687,6 +690,7 @@
 				2C76998319B302FB0044B497 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2C76998419B302FB0044B497 /* Build configuration list for PBXNativeTarget "STURITemplateTests-ios" */ = {
 			isa = XCConfigurationList;
@@ -695,6 +699,7 @@
 				2C76998619B302FB0044B497 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -6,8 +6,8 @@
 
 #import <Foundation/Foundation.h>
 
-FOUNDATION_EXPORT double STURITemplateVersionNumber;
-FOUNDATION_EXPORT const unsigned char STURITemplateVersionString[];
+
+extern NSString * const STURITemplateErrorDomain;
 
 
 @protocol STURITemplate <NSObject>
@@ -16,7 +16,8 @@ FOUNDATION_EXPORT const unsigned char STURITemplateVersionString[];
 @end
 
 @interface STURITemplate : NSObject<STURITemplate>
-- (id)initWithTemplate:(NSString *)template;
+- (id)initWithString:(NSString *)string;
+- (id)initWithString:(NSString *)string error:(NSError * __autoreleasing *)error;
 //@property (nonatomic,copy,readonly) NSURL *url;
 //- (STURITemplate *)templateByExpandingWithVariables:(NSDictionary *)variables;
 @end
