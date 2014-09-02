@@ -10,22 +10,21 @@
 NSString * const STURITemplateErrorDomain = @"STURITemplate";
 
 
-typedef id(^STArrayMapBlock)(id o);
-@interface NSArray (STURITemplate)
-- (NSArray *)sturit_map:(STArrayMapBlock)block;
-@end
-@implementation NSArray (STURITemplate)
-- (NSArray *)sturit_map:(STArrayMapBlock)block {
-    NSMutableArray * const array = [[NSMutableArray alloc] initWithCapacity:self.count];
-    [self enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        id mappedObject = block(obj);
-        if (mappedObject) {
-            [array addObject:mappedObject];
+typedef id(^STURITArrayMapBlock)(id o);
+
+static NSArray *STURITArrayByMappingArray(NSArray *array, STURITArrayMapBlock block) {
+    NSUInteger const count = array.count;
+    id values[count];
+    memset(values, 0, sizeof(values));
+    NSUInteger i = 0;
+    for (id o in array) {
+        id v = block(o);
+        if (v) {
+            values[i++] = v;
         }
-    }];
-    return array;
+    }
+    return [[NSArray alloc] initWithObjects:values count:i];
 }
-@end
 
 
 @protocol STURITemplateComponent <NSObject>
@@ -66,10 +65,27 @@ typedef id(^STArrayMapBlock)(id o);
 @end
 
 
+typedef NS_ENUM(NSInteger, STURITemplateEncodingStyle) {
+    STURITemplateEncodingStyleU,
+    STURITemplateEncodingStyleUR,
+};
+static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STURITemplateEncodingStyle style) {
+    CFStringRef legalURLCharactersToBeEscaped = nil;
+    switch (style) {
+        case STURITemplateEncodingStyleU:
+            legalURLCharactersToBeEscaped = CFSTR("!#$&'()*+,/:;=?@[]%");
+            break;
+        case STURITemplateEncodingStyleUR:
+            break;
+    }
+    return (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(NULL, (__bridge CFStringRef)string, NULL, legalURLCharactersToBeEscaped, kCFStringEncodingUTF8);
+}
+
+
 @interface STURITemplateComponentVariable : NSObject
 - (id)initWithName:(NSString *)name;
 @property (nonatomic,copy,readonly) NSString *name;
-- (NSString *)stringWithValue:(id)value preserveCharacters:(BOOL)preserveCharacters;
+- (NSString *)stringWithValue:(id)value encodingStyle:(STURITemplateEncodingStyle)encodingStyle;
 @end
 
 @interface STURITemplateComponentTruncatedVariable : STURITemplateComponentVariable
@@ -78,12 +94,6 @@ typedef id(^STArrayMapBlock)(id o);
 
 @interface STURITemplateComponentExplodedVariable : STURITemplateComponentVariable
 @end
-
-
-static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, BOOL preserveCharacters) {
-    CFStringRef const legalURLCharactersToBeEscaped = preserveCharacters ? NULL : CFSTR("!#$&'()*+,/:;=?@[]%");
-    return (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(NULL, (__bridge CFStringRef)string, NULL, legalURLCharactersToBeEscaped, kCFStringEncodingUTF8);
-}
 
 
 @interface STURITemplateScanner : NSObject
@@ -410,7 +420,7 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, BOO
     return @[];
 }
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return STURITemplateStringByAddingPercentEscapes(_string, YES);
+    return STURITemplateStringByAddingPercentEscapes(_string, STURITemplateEncodingStyleUR);
 }
 @end
 
@@ -432,12 +442,12 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, BOO
 - (NSArray *)variableNames {
     return _variableNames;
 }
-- (NSString *)stringWithVariables:(NSDictionary *)variables prefix:(NSString *)prefix separator:(NSString *)separator asPair:(BOOL)asPair preserveCharacters:(BOOL)preserveCharacters {
+- (NSString *)stringWithVariables:(NSDictionary *)variables prefix:(NSString *)prefix separator:(NSString *)separator asPair:(BOOL)asPair encodingStyle:(STURITemplateEncodingStyle)encodingStyle {
     NSMutableArray * const values = [[NSMutableArray alloc] initWithCapacity:_variables.count];
     for (STURITemplateComponentVariable *variable in _variables) {
         id const value = variables[variable.name];
         if (value) {
-            NSString * const string = [variable stringWithValue:value preserveCharacters:preserveCharacters];
+            NSString * const string = [variable stringWithValue:value encodingStyle:encodingStyle];
             if (!string) {
                 continue;
             }
@@ -462,49 +472,49 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, BOO
 @implementation STURITemplateSimpleComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"" separator:@"," asPair:NO preserveCharacters:NO];
+    return [super stringWithVariables:variables prefix:@"" separator:@"," asPair:NO encodingStyle:STURITemplateEncodingStyleU];
 }
 @end
 
 @implementation STURITemplateReservedCharacterComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"" separator:@"," asPair:NO preserveCharacters:YES];
+    return [super stringWithVariables:variables prefix:@"" separator:@"," asPair:NO encodingStyle:STURITemplateEncodingStyleUR];
 }
 @end
 
 @implementation STURITemplateFragmentComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"#" separator:@"," asPair:NO preserveCharacters:YES];
+    return [super stringWithVariables:variables prefix:@"#" separator:@"," asPair:NO encodingStyle:STURITemplateEncodingStyleUR];
 }
 @end
 
 @implementation STURITemplatePathSegmentComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"/" separator:@"/" asPair:NO preserveCharacters:NO];
+    return [super stringWithVariables:variables prefix:@"/" separator:@"/" asPair:NO encodingStyle:STURITemplateEncodingStyleU];
 }
 @end
 
 @implementation STURITemplatePathExtensionComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"." separator:@"." asPair:NO preserveCharacters:NO];
+    return [super stringWithVariables:variables prefix:@"." separator:@"." asPair:NO encodingStyle:STURITemplateEncodingStyleU];
 }
 @end
 
 @implementation STURITemplateQueryComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"?" separator:@"&" asPair:YES preserveCharacters:NO];
+    return [super stringWithVariables:variables prefix:@"?" separator:@"&" asPair:YES encodingStyle:STURITemplateEncodingStyleU];
 }
 @end
 
 @implementation STURITemplateQueryContinuationComponent
 @dynamic variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return [super stringWithVariables:variables prefix:@"&" separator:@"&" asPair:YES preserveCharacters:NO];
+    return [super stringWithVariables:variables prefix:@"&" separator:@"&" asPair:YES encodingStyle:STURITemplateEncodingStyleU];
 }
 @end
 
@@ -517,7 +527,7 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, BOO
     for (STURITemplateComponentVariable *variable in _variables) {
         id const value = variables[variable.name];
         if (value) {
-            NSString * const string = [variable stringWithValue:value preserveCharacters:NO];
+            NSString * const string = [variable stringWithValue:value encodingStyle:STURITemplateEncodingStyleU];
             if (!string) {
                 continue;
             }
@@ -550,20 +560,20 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, BOO
     }
     return self;
 }
-- (NSString *)stringWithValue:(id)value preserveCharacters:(BOOL)preserveCharacters {
+- (NSString *)stringWithValue:(id)value encodingStyle:(STURITemplateEncodingStyle)encodingStyle {
     if (!value) {
         return nil;
     }
     if ([value isKindOfClass:[NSString class]]) {
-        return STURITemplateStringByAddingPercentEscapes(value, preserveCharacters);
+        return STURITemplateStringByAddingPercentEscapes(value, encodingStyle);
     }
     if ([value isKindOfClass:[NSNumber class]]) {
         return ((NSNumber *)value).stringValue;
     }
     if ([value isKindOfClass:[NSArray class]]) {
-        return [[((NSArray *)value) sturit_map:^(id o) {
-            return STURITemplateStringByAddingPercentEscapes([NSString stringWithFormat:@"%@", o], preserveCharacters);
-        }] componentsJoinedByString:@","];
+        return [STURITArrayByMappingArray(value, ^(id o) {
+            return [self stringWithValue:o encodingStyle:encodingStyle];
+        }) componentsJoinedByString:@","];
     }
     return nil;
 }
@@ -583,8 +593,17 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, BOO
     if (!value) {
         return nil;
     }
-    NSString * const s = [NSString stringWithFormat:@"%@", value];
-    return STURITemplateStringByAddingPercentEscapes([s substringToIndex:MIN(_length, s.length)], preserveCharacters);
+    NSString *string = nil;
+    if ([value isKindOfClass:[NSString class]]) {
+        string = value;
+    }
+    if ([value isKindOfClass:[NSNumber class]]) {
+        string = ((NSNumber *)value).stringValue;
+    }
+    if (!string) {
+        return nil;
+    }
+    return STURITemplateStringByAddingPercentEscapes([string substringToIndex:MIN(_length, string.length)], preserveCharacters ? STURITemplateEncodingStyleUR : STURITemplateEncodingStyleU);
 }
 @end
 
