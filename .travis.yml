@@ -1,17 +1,13 @@
 language: objective-c
 xcode_project: STURITemplate.xcodeproj
-xcode_scheme:
-    - STURITemplate-ios
-    - STURITemplate-mac
-xcode_sdk:
-    - iphonesimulator
-    - macosx
 matrix:
-    exclude:
-        - xcode_scheme: STURITemplate-ios
-          xcode_sdk: macosx
-        - xcode_scheme: STURITemplate-mac
-          xcode_sdk: iphonesimulator
+    include:
+        - xcode_sdk: iphonesimulator6.1
+          xcode_scheme: STURITemplate-ios
+        - xcode_sdk: iphonesimulator7.1
+          xcode_scheme: STURITemplate-ios
+        - xcode_sdk: macosx
+          xcode_scheme: STURITemplate-mac
 branches:
     only:
         - master
