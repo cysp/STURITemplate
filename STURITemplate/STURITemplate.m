@@ -183,7 +183,7 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
     [a formIntersectionWithCharacterSet:[[NSCharacterSet characterSetWithCharactersInString:@" \"'%<>\\^`{|}"] invertedSet]];
 
     NSMutableString * const string = [NSMutableString string];
-    while (!_scanner.atEnd) {
+    while (![_scanner isAtEnd]) {
         BOOL didSomething = NO;
         NSString *scratch = nil;
 
@@ -624,7 +624,7 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     }
 
     NSMutableArray * const components = [[NSMutableArray alloc] init];
-    while (!scanner.atEnd) {
+    while (![scanner isAtEnd]) {
         id<STURITemplateComponent> component = nil;
         if (![scanner sturit_scanTemplateComponent:&component]) {
             return nil;
