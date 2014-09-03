@@ -3,6 +3,15 @@ xcode_project: STURITemplate.xcodeproj
 xcode_scheme:
     - STURITemplate-ios
     - STURITemplate-mac
+xcode_sdk:
+    - iphonesimulator
+    - macosx
+matrix:
+    exclude:
+        - xcode_scheme: STURITemplate-ios
+          xcode_sdk: macosx
+        - xcode_scheme: STURITemplate-mac
+          xcode_sdk: iphonesimulator
 branches:
     only:
         - master
