@@ -1,0 +1,9 @@
+language: objective-c
+xcode_project:
+    - STURITemplate.xcodeproj
+xcode_scheme:
+    - STURITemplate-ios
+    - STURITemplate-mac
+branches:
+    only:
+        - master
