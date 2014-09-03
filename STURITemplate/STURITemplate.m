@@ -259,13 +259,13 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
         return NO;
     }
 
-    unsigned long long prefixLength = 0;
+    long long prefixLength = 0;
     if ([_scanner scanString:@":" intoString:NULL]) {
-        if (![_scanner scanUnsignedLongLong:&prefixLength]) {
+        if (![_scanner scanLongLong:&prefixLength]) {
             [_scanner setScanLocation:scanLocation];
             return NO;
         }
-        if (prefixLength >= 10000) {
+        if (prefixLength < 0 || prefixLength >= 10000) {
             [_scanner setScanLocation:scanLocation];
             return NO;
         }
