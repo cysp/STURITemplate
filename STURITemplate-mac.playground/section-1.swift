@@ -5,8 +5,8 @@ import STURITemplate
 
 let u = NSURL(string: "http://example.org/")
 
-let searchTemplate = STURITemplate(template: "address{?formatted_address}")
-let detailTemplate = STURITemplate(template: "address/{id}")
+let searchTemplate = STURITemplate(string: "address{?formatted_address}")
+let detailTemplate = STURITemplate(string: "address/{id}")
 
 searchTemplate.variableNames
 
