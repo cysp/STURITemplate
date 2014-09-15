@@ -12,12 +12,12 @@ extern NSString * const STURITemplateErrorDomain;
 
 @protocol STURITemplate <NSObject>
 @property (nonatomic,copy,readonly) NSArray *variableNames;
+- (NSString *)stringByExpandingWithVariables:(NSDictionary *)variables;
 - (NSURL *)urlByExpandingWithVariables:(NSDictionary *)variables;
 @end
 
 @interface STURITemplate : NSObject<STURITemplate>
 - (id)initWithString:(NSString *)string;
 - (id)initWithString:(NSString *)string error:(NSError * __autoreleasing *)error;
-//@property (nonatomic,copy,readonly) NSURL *url;
-//- (STURITemplate *)templateByExpandingWithVariables:(NSDictionary *)variables;
+- (NSString *)templatedStringRepresentation;
 @end
