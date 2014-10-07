@@ -403,14 +403,8 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
     return [self initWithString:nil];
 }
 - (id)initWithString:(NSString *)string {
-    CFStringRef s = CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (__bridge CFStringRef)string, CFSTR(""), kCFStringEncodingUTF8);
-    if (!s) {
-        return nil;
-    }
     if ((self = [super init])) {
-        _string = (__bridge_transfer NSString *)s;
-    } else {
-        CFRelease(s), s = NULL;
+        _string = string.copy;
     }
     return self;
 }
@@ -418,10 +412,10 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
     return @[];
 }
 - (NSString *)stringWithVariables:(NSDictionary *)variables {
-    return STURITemplateStringByAddingPercentEscapes(_string, STURITemplateEscapingStyleUR);
+    return _string;
 }
 - (NSString *)templateRepresentation {
-    return STURITemplateStringByAddingPercentEscapes(_string, STURITemplateEscapingStyleUR);
+    return _string;
 }
 @end
 
