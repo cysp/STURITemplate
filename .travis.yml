@@ -9,3 +9,5 @@ matrix:
 branches:
     only:
         - master
+before_script:
+    - brew update && brew upgrade xctool
