@@ -51,7 +51,7 @@
     }
 }
 - (void)test5 {
-    STURITemplate * const t = [[STURITemplate alloc] initWithString:@"grüner%20weg"];
+    STURITemplate * const t = [[STURITemplate alloc] initWithString:@"gr%C3%BCner%20weg"];
     XCTAssertEqualObjects(t.templatedStringRepresentation, @"gr%C3%BCner%20weg");
     {
         NSURL * const u = [t urlByExpandingWithVariables:nil];
@@ -59,12 +59,10 @@
     }
 }
 - (void)test6 {
-    STURITemplate * const t = [[STURITemplate alloc] initWithString:@"gr%C3%BCner%20weg"];
-    XCTAssertEqualObjects(t.templatedStringRepresentation, @"gr%C3%BCner%20weg");
-    {
-        NSURL * const u = [t urlByExpandingWithVariables:nil];
-        XCTAssertEqualObjects(u.absoluteString, @"gr%C3%BCner%20weg");
-    }
+    NSString * const s = @"https://example.org/api/info/sports/Basketball/competitions/College%20Basketball/matches/2014%2F15%20NCAA%20Basketball?jurisdiction=nsw";
+    STURITemplate * const t = [[STURITemplate alloc] initWithString:s];
+    XCTAssertEqualObjects(t.templatedStringRepresentation, s);
+    XCTAssertEqualObjects([t urlByExpandingWithVariables:nil].absoluteString, s);
 }
 
 
