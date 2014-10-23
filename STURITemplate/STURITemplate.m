@@ -634,7 +634,7 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     return STURITemplateStringByAddingPercentEscapes([string substringToIndex:MIN(_length, string.length)], preserveCharacters ? STURITemplateEscapingStyleUR : STURITemplateEscapingStyleU);
 }
 - (NSString *)templateRepresentation {
-    return [NSString stringWithFormat:@"%@:%lu", self.name, _length];
+    return [NSString stringWithFormat:@"%@:%lu", self.name, (unsigned long)_length];
 }
 @end
 
