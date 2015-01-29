@@ -64,6 +64,39 @@
     XCTAssertEqualObjects(t.templatedStringRepresentation, s);
     XCTAssertEqualObjects([t urlByExpandingWithVariables:nil].absoluteString, s);
 }
+- (void)test7 {
+    NSString * const s = @"https://example.org/api/info/search/propositions{?proposition_id*}";
+    STURITemplate * const t = [[STURITemplate alloc] initWithString:s];
+    XCTAssertEqualObjects(t.templatedStringRepresentation, s);
+    {
+        NSURL * const u = [t urlByExpandingWithVariables:nil];
+        XCTAssertEqualObjects(u.absoluteString, @"https://example.org/api/info/search/propositions");
+    }
+    {
+        NSURL * const u = [t urlByExpandingWithVariables:@{
+            @"proposition_id": @"1",
+        }];
+        XCTAssertEqualObjects(u.absoluteString, @"https://example.org/api/info/search/propositions?proposition_id=1");
+    }
+    {
+        NSURL * const u = [t urlByExpandingWithVariables:@{
+            @"proposition_id": @1,
+        }];
+        XCTAssertEqualObjects(u.absoluteString, @"https://example.org/api/info/search/propositions?proposition_id=1");
+    }
+    {
+        NSURL * const u = [t urlByExpandingWithVariables:@{
+            @"proposition_id": @[ @"1", @"2" ],
+        }];
+        XCTAssertEqualObjects(u.absoluteString, @"https://example.org/api/info/search/propositions?proposition_id=1&proposition_id=2");
+    }
+    {
+        NSURL * const u = [t urlByExpandingWithVariables:@{
+            @"proposition_id": @[ @1, @2 ],
+        }];
+        XCTAssertEqualObjects(u.absoluteString, @"https://example.org/api/info/search/propositions?proposition_id=1&proposition_id=2");
+    }
+}
 
 
 - (void)testNegative {

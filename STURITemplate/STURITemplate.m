@@ -76,7 +76,7 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 @interface STURITemplateComponentVariable : NSObject
 - (id)initWithName:(NSString *)name;
 @property (nonatomic,copy,readonly) NSString *name;
-- (NSString *)stringWithValue:(id)value encodingStyle:(STURITemplateEscapingStyle)encodingStyle;
+- (NSArray *)stringsWithValue:(id)value encodingStyle:(STURITemplateEscapingStyle)encodingStyle;
 - (NSString *)templateRepresentation;
 @end
 
@@ -449,31 +449,33 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     for (STURITemplateComponentVariable *variable in _variables) {
         id const value = variables[variable.name];
         if (value) {
-            NSString * const string = [variable stringWithValue:value encodingStyle:encodingStyle];
-            if (!string) {
+            NSArray * const strings = [variable stringsWithValue:value encodingStyle:encodingStyle];
+            if (!strings) {
                 return nil;
             }
-            NSMutableString *value = [NSMutableString string];
-            switch (asPair) {
-                case STURITemplateVariableComponentPairStyleNone: {
-                    if (string.length) {
-                        [value appendString:string];
-                    }
-                } break;
-                case STURITemplateVariableComponentPairStyleElidedEquals: {
-                    [value appendString:variable.name];
-                    if (string.length) {
-                        [value appendFormat:@"=%@", string];
-                    }
-                } break;
-                case STURITemplateVariableComponentPairStyleTrailingEquals: {
-                    [value appendFormat:@"%@=", variable.name];
-                    if (string.length) {
-                        [value appendString:string];
-                    }
-                } break;
+            for (NSString *string in strings) {
+                NSMutableString *value = [NSMutableString string];
+                switch (asPair) {
+                    case STURITemplateVariableComponentPairStyleNone: {
+                        if (string.length) {
+                            [value appendString:string];
+                        }
+                    } break;
+                    case STURITemplateVariableComponentPairStyleElidedEquals: {
+                        [value appendString:variable.name];
+                        if (string.length) {
+                            [value appendFormat:@"=%@", string];
+                        }
+                    } break;
+                    case STURITemplateVariableComponentPairStyleTrailingEquals: {
+                        [value appendFormat:@"%@=", variable.name];
+                        if (string.length) {
+                            [value appendString:string];
+                        }
+                    } break;
+                }
+                [values addObject:value];
             }
-            [values addObject:value];
         }
     }
     NSString *string = [values componentsJoinedByString:separator];
@@ -585,20 +587,21 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     }
     return self;
 }
-- (NSString *)stringWithValue:(id)value encodingStyle:(STURITemplateEscapingStyle)encodingStyle {
+- (NSArray *)stringsWithValue:(id)value encodingStyle:(STURITemplateEscapingStyle)encodingStyle {
     if (!value) {
         return nil;
     }
     if ([value isKindOfClass:[NSString class]]) {
-        return STURITemplateStringByAddingPercentEscapes(value, encodingStyle);
+        return @[ STURITemplateStringByAddingPercentEscapes(value, encodingStyle) ];
     }
     if ([value isKindOfClass:[NSNumber class]]) {
-        return ((NSNumber *)value).stringValue;
+        return @[ ((NSNumber *)value).stringValue ];
     }
     if ([value isKindOfClass:[NSArray class]]) {
-        return [STURITArrayByMappingArray(value, ^(id o) {
-            return [self stringWithValue:o encodingStyle:encodingStyle];
+        NSString * const string = [STURITArrayByMappingArray(value, ^id(id o) {
+            return [[self stringsWithValue:o encodingStyle:encodingStyle] firstObject];
         }) componentsJoinedByString:@","];
+        return @[ string ];
     }
     return nil;
 }
@@ -617,7 +620,7 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     }
     return self;
 }
-- (NSString *)stringWithValue:(id)value preserveCharacters:(BOOL)preserveCharacters {
+- (NSArray *)stringsWithValue:(id)value encodingStyle:(STURITemplateEscapingStyle)encodingStyle {
     if (!value) {
         return nil;
     }
@@ -631,7 +634,7 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     if (!string) {
         return nil;
     }
-    return STURITemplateStringByAddingPercentEscapes([string substringToIndex:MIN(_length, string.length)], preserveCharacters ? STURITemplateEscapingStyleUR : STURITemplateEscapingStyleU);
+    return @[ STURITemplateStringByAddingPercentEscapes([string substringToIndex:MIN(_length, string.length)], encodingStyle) ];
 }
 - (NSString *)templateRepresentation {
     return [NSString stringWithFormat:@"%@:%lu", self.name, _length];
@@ -639,12 +642,32 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
 @end
 
 @implementation STURITemplateComponentExplodedVariable
-- (NSString *)stringWithValue:(id)value preserveCharacters:(BOOL)preserveCharacters {
+- (NSArray *)stringsWithValue:(id)value encodingStyle:(STURITemplateEscapingStyle)encodingStyle {
+    if (!value) {
+        return nil;
+    }
+    NSString *string = nil;
+    if ([value isKindOfClass:[NSString class]]) {
+        string = value;
+    }
+    if ([value isKindOfClass:[NSNumber class]]) {
+        string = ((NSNumber *)value).stringValue;
+    }
+    if (string) {
+        return @[ STURITemplateStringByAddingPercentEscapes(string, encodingStyle) ];
+    }
+
+    if ([value isKindOfClass:[NSArray class]]) {
+        return STURITArrayByMappingArray(value, ^(id o) {
+            return [self stringsWithValue:o encodingStyle:encodingStyle].firstObject;
+        });
+    }
+
     NSAssert(0, @"unimplemented");
     return nil;
 }
 - (NSString *)templateRepresentation {
-    return nil;
+    return [NSString stringWithFormat:@"%@*", self.name];
 }
 @end
 
