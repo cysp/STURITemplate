@@ -7,17 +7,17 @@
 #import <Foundation/Foundation.h>
 
 
-extern NSString * const STURITemplateErrorDomain;
+extern NSString * __nonnull const STURITemplateErrorDomain;
 
 
 @protocol STURITemplate <NSObject>
-@property (nonatomic,copy,readonly) NSArray *variableNames;
-- (NSString *)stringByExpandingWithVariables:(NSDictionary *)variables;
-- (NSURL *)urlByExpandingWithVariables:(NSDictionary *)variables;
+@property (nonatomic,copy,readonly) NSArray * __nonnull variableNames;
+- (NSString * __nonnull)stringByExpandingWithVariables:(NSDictionary * __nullable)variables;
+- (NSURL * __nullable)urlByExpandingWithVariables:(NSDictionary * __nullable)variables;
 @end
 
 @interface STURITemplate : NSObject<STURITemplate>
-- (id)initWithString:(NSString *)string;
-- (id)initWithString:(NSString *)string error:(NSError * __autoreleasing *)error;
-- (NSString *)templatedStringRepresentation;
+- (id __nullable)initWithString:(NSString * __nonnull)string;
+- (id __nullable)initWithString:(NSString * __nonnull)string error:(NSError * __autoreleasing __nullable * __nullable)error;
+- (NSString * __nonnull)templatedStringRepresentation;
 @end
