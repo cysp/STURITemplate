@@ -27,6 +27,40 @@ static NSArray *STURITArrayByMappingArray(NSArray *array, STURITArrayMapBlock bl
 }
 
 
+static NSCharacterSet *STURITemplateScannerHexCharacterSet = nil;
+static NSCharacterSet *STURITemplateScannerLiteralComponentCharacterSet = nil;
+static NSCharacterSet *STURITemplateScannerOperatorCharacterSet = nil;
+static NSCharacterSet *STURITemplateScannerVariableNameCharacterSet = nil;
+static NSCharacterSet *STURITemplateScannerVariableNameMinusDotCharacterSet = nil;
+
+
+__attribute__((constructor))
+static void STURITemplateScannerInit(void) {
+    STURITemplateScannerHexCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@"0123456789abcdefABCDEF"];
+
+    {
+        NSMutableCharacterSet *cs = [[[NSCharacterSet illegalCharacterSet] invertedSet] mutableCopy];
+        [cs formIntersectionWithCharacterSet:[[NSCharacterSet controlCharacterSet] invertedSet]];
+        [cs formIntersectionWithCharacterSet:[[NSCharacterSet characterSetWithCharactersInString:@" \"'%<>\\^`{|}"] invertedSet]];
+        STURITemplateScannerLiteralComponentCharacterSet = cs.copy;
+    }
+
+    STURITemplateScannerOperatorCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@"+#./;?&=,!@|"];
+
+    {
+        NSMutableCharacterSet *cs = [[NSMutableCharacterSet alloc] init];
+        [cs addCharactersInString:@"abcdefghijklmnopqrstuvwxyz"];
+        [cs addCharactersInString:@"ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
+        [cs addCharactersInString:@"0123456789"];
+        [cs addCharactersInString:@"_%"];
+        STURITemplateScannerVariableNameMinusDotCharacterSet = cs.copy;
+
+        [cs addCharactersInString:@"."];
+        STURITemplateScannerVariableNameCharacterSet = cs.copy;
+    }
+}
+
+
 @protocol STURITemplateComponent <NSObject>
 @property (nonatomic,copy,readonly) NSArray *variableNames;
 - (NSString *)stringWithVariables:(NSDictionary *)variables;
@@ -144,8 +178,6 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 
     NSMutableString * const string = @"%".mutableCopy;
 
-    NSCharacterSet * const hexCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@"0123456789abcdefABCDEF"];
-
     if (![_scanner scanString:@"%" intoString:NULL]) {
         [_scanner setScanLocation:scanLocation];
         return NO;
@@ -159,11 +191,11 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
     unichar candidateCharacters[2] = { 0 };
     [candidateString getCharacters:candidateCharacters range:(NSRange){ .length = 2 }];
 
-    if (![hexCharacterSet characterIsMember:candidateCharacters[0]]) {
+    if (![STURITemplateScannerHexCharacterSet characterIsMember:candidateCharacters[0]]) {
         [_scanner setScanLocation:scanLocation];
         return NO;
     }
-    if (![hexCharacterSet characterIsMember:candidateCharacters[1]]) {
+    if (![STURITemplateScannerHexCharacterSet characterIsMember:candidateCharacters[1]]) {
         [_scanner setScanLocation:scanLocation];
         return NO;
     }
@@ -182,16 +214,12 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 - (BOOL)sturit_scanLiteralComponent:(id<STURITemplateComponent> __autoreleasing *)result {
     NSUInteger const scanLocation = _scanner.scanLocation;
 
-    NSMutableCharacterSet * const a = [[[NSCharacterSet illegalCharacterSet] invertedSet] mutableCopy];
-    [a formIntersectionWithCharacterSet:[[NSCharacterSet controlCharacterSet] invertedSet]];
-    [a formIntersectionWithCharacterSet:[[NSCharacterSet characterSetWithCharactersInString:@" \"'%<>\\^`{|}"] invertedSet]];
-
     NSMutableString * const string = [NSMutableString string];
     while (![_scanner isAtEnd]) {
         BOOL didSomething = NO;
         NSString *scratch = nil;
 
-        if ([_scanner scanCharactersFromSet:a intoString:&scratch]) {
+        if ([_scanner scanCharactersFromSet:STURITemplateScannerLiteralComponentCharacterSet intoString:&scratch]) {
             [string appendString:scratch];
             didSomething = YES;
         } else if ([self sturit_scanPercentEncoded:&scratch]) {
@@ -225,14 +253,9 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 
     NSMutableString * const string = [[NSMutableString alloc] init];
 
-    NSMutableCharacterSet * const variableNameCharacterSet = [[NSMutableCharacterSet alloc] init];
-    [variableNameCharacterSet addCharactersInString:@"abcdefghijklmnopqrstuvwxyz"];
-    [variableNameCharacterSet addCharactersInString:@"ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
-    [variableNameCharacterSet addCharactersInString:@"0123456789"];
-    [variableNameCharacterSet addCharactersInString:@"_%"];
     {
         NSString *scratch = nil;
-        if ([_scanner scanCharactersFromSet:variableNameCharacterSet intoString:&scratch]) {
+        if ([_scanner scanCharactersFromSet:STURITemplateScannerVariableNameMinusDotCharacterSet intoString:&scratch]) {
             [string appendString:scratch];
         }
     }
@@ -241,10 +264,9 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
         return NO;
     }
 
-    [variableNameCharacterSet addCharactersInString:@"."];
     {
         NSString *scratch = nil;
-        if ([_scanner scanCharactersFromSet:variableNameCharacterSet intoString:&scratch]) {
+        if ([_scanner scanCharactersFromSet:STURITemplateScannerVariableNameCharacterSet intoString:&scratch]) {
             [string appendString:scratch];
         }
     }
@@ -302,12 +324,10 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
         return NO;
     }
 
-    NSCharacterSet * const operatorCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@"+#./;?&=,!@|"];
-
     NSString *operator = nil;
     {
         NSString * const candidateOperator = [self sturit_peekStringUpToLength:1];
-        if (candidateOperator.length == 1 && [operatorCharacterSet characterIsMember:[candidateOperator characterAtIndex:0]]) {
+        if (candidateOperator.length == 1 && [STURITemplateScannerOperatorCharacterSet characterIsMember:[candidateOperator characterAtIndex:0]]) {
             if (![_scanner scanString:candidateOperator intoString:&operator]) {
                 [_scanner setScanLocation:scanLocation];
                 return NO;
