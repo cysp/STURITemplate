@@ -584,4 +584,20 @@
     }
 }
 
+
+#if defined(__IPHONE_8_0)
+- (void)testPerformance {
+    NSString * const input = @"https://webapi.tab.com.au/v1/tab-info-service/racing/dates/{meetingDate}/meetings/{raceType}/{venueMnemonic}/races/{raceNumber}/form?jurisdiction={jurisdiction}";
+
+    if ([self respondsToSelector:@selector(measureBlock:)]) {
+        [self measureBlock:^{
+            for (int i = 0; i < 1000; ++i) {
+                STURITemplate * const t = [[STURITemplate alloc] initWithString:input];
+                (void)t;
+            }
+        }];
+    }
+}
+#endif
+
 @end
