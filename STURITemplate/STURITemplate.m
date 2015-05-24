@@ -5,7 +5,8 @@
 //  Copyright (c) 2014-2015 Scott Talbot.
 
 #import "STURITemplate.h"
-#import "STURITemplateScanner.h"
+#import "STURITemplateInternal.h"
+#import "STURITemplateParser.h"
 
 
 NSString * const STURITemplateErrorDomain = @"STURITemplate";
@@ -15,35 +16,19 @@ NSString * const STURITemplateErrorDomain = @"STURITemplate";
 @private
     NSArray *_components;
 }
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
 - (id)init {
-    return nil;
+    return [self initWithString:nil error:NULL];
 }
 #pragma clang diagnostic pop
-
 - (id)initWithString:(NSString *)string {
     return [self initWithString:string error:NULL];
 }
-
 - (id)initWithString:(NSString *)string error:(NSError *__autoreleasing *)error {
-    if (!string) {
+    NSArray * const components = sturitemplate_parse(string);
+    if (!components) {
         return nil;
-    }
-
-    STURITemplateScanner * const scanner = [[STURITemplateScanner alloc] initWithString:string];
-    if (!scanner) {
-        return nil;
-    }
-
-    NSMutableArray * const components = [[NSMutableArray alloc] init];
-    while (![scanner isAtEnd]) {
-        id<STURITemplateComponent> component = nil;
-        if (![scanner sturit_scanTemplateComponent:&component]) {
-            return nil;
-        }
-        [components addObject:component];
     }
 
     if ((self = [super init])) {
