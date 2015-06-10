@@ -137,6 +137,9 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 @private
     NSScanner *_scanner;
 }
+- (instancetype)init {
+    return [self initWithString:nil];
+}
 - (instancetype)initWithString:(NSString *)string {
     NSScanner * const scanner = [[NSScanner alloc] initWithString:string];
     if (!scanner) {
