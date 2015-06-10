@@ -14,7 +14,7 @@
     STURITemplate * const t = [[STURITemplate alloc] initWithString:@"address{?formatted_address}"];
     XCTAssertEqualObjects(t.templatedStringRepresentation, @"address{?formatted_address}");
     {
-        NSURL * const u = [t urlByExpandingWithVariables:nil];
+        NSURL * const u = [t urlByExpandingWithVariables:@{}];
         XCTAssertEqualObjects(u.absoluteString, @"address");
     }
     {
@@ -26,7 +26,7 @@
     STURITemplate * const t = [[STURITemplate alloc] initWithString:@"address{/id}"];
     XCTAssertEqualObjects(t.templatedStringRepresentation, @"address{/id}");
     {
-        NSURL * const u = [t urlByExpandingWithVariables:nil];
+        NSURL * const u = [t urlByExpandingWithVariables:@{}];
         XCTAssertEqualObjects(u.absoluteString, @"address");
     }
     {
@@ -38,7 +38,7 @@
     STURITemplate * const t = [[STURITemplate alloc] initWithString:@"foo/bar/baz"];
     XCTAssertEqualObjects(t.templatedStringRepresentation, @"foo/bar/baz");
     {
-        NSURL * const u = [t urlByExpandingWithVariables:nil];
+        NSURL * const u = [t urlByExpandingWithVariables:@{}];
         XCTAssertEqualObjects(u.absoluteString, @"foo/bar/baz");
     }
 }
@@ -46,7 +46,7 @@
     STURITemplate * const t = [[STURITemplate alloc] initWithString:@"foo/bar%20bar/baz"];
     XCTAssertEqualObjects(t.templatedStringRepresentation, @"foo/bar%20bar/baz");
     {
-        NSURL * const u = [t urlByExpandingWithVariables:nil];
+        NSURL * const u = [t urlByExpandingWithVariables:@{}];
         XCTAssertEqualObjects(u.absoluteString, @"foo/bar%20bar/baz");
     }
 }
@@ -54,7 +54,7 @@
     STURITemplate * const t = [[STURITemplate alloc] initWithString:@"gr%C3%BCner%20weg"];
     XCTAssertEqualObjects(t.templatedStringRepresentation, @"gr%C3%BCner%20weg");
     {
-        NSURL * const u = [t urlByExpandingWithVariables:nil];
+        NSURL * const u = [t urlByExpandingWithVariables:@{}];
         XCTAssertEqualObjects(u.absoluteString, @"gr%C3%BCner%20weg");
     }
 }
@@ -62,7 +62,7 @@
     NSString * const s = @"https://example.org/api/info/sports/Basketball/competitions/College%20Basketball/matches/2014%2F15%20NCAA%20Basketball?jurisdiction=nsw";
     STURITemplate * const t = [[STURITemplate alloc] initWithString:s];
     XCTAssertEqualObjects(t.templatedStringRepresentation, s);
-    XCTAssertEqualObjects([t urlByExpandingWithVariables:nil].absoluteString, s);
+    XCTAssertEqualObjects([t urlByExpandingWithVariables:@{}].absoluteString, s);
 }
 
 

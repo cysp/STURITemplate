@@ -676,13 +676,20 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
 @private
     NSArray *_components;
 }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wall"
 - (id)init {
-    return [self initWithString:nil error:NULL];
+    return nil;
 }
+#pragma clang diagnostic pop
 - (id)initWithString:(NSString *)string {
     return [self initWithString:string error:NULL];
 }
 - (id)initWithString:(NSString *)string error:(NSError *__autoreleasing *)error {
+    if (!string) {
+        return nil;
+    }
+
     STURITemplateScanner * const scanner = [[STURITemplateScanner alloc] initWithString:string];
     if (!scanner) {
         return nil;
@@ -710,7 +717,7 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     return variableNames.copy;
 }
 - (NSString *)string {
-    return [self stringByExpandingWithVariables:nil];
+    return [self stringByExpandingWithVariables:@{}];
 }
 - (NSString *)stringByExpandingWithVariables:(NSDictionary *)variables {
     NSMutableString * const urlString = [[NSMutableString alloc] init];
@@ -724,7 +731,7 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     return urlString;
 }
 - (NSURL *)url {
-    return [self urlByExpandingWithVariables:nil];
+    return [self urlByExpandingWithVariables:@{}];
 }
 - (NSURL *)urlByExpandingWithVariables:(NSDictionary *)variables {
     NSString * const urlString = [self stringByExpandingWithVariables:variables];
