@@ -28,10 +28,10 @@ static NSArray *STURITArrayByMappingArray(NSArray *array, STURITArrayMapBlock bl
 
 
 static NSCharacterSet *STURITemplateScannerHexCharacterSet = nil;
-static NSCharacterSet *STURITemplateScannerLiteralComponentCharacterSet = nil;
+static NSCharacterSet *STURITemplateScannerInvertedLiteralComponentCharacterSet = nil;
 static NSCharacterSet *STURITemplateScannerOperatorCharacterSet = nil;
-static NSCharacterSet *STURITemplateScannerVariableNameCharacterSet = nil;
-static NSCharacterSet *STURITemplateScannerVariableNameMinusDotCharacterSet = nil;
+static NSCharacterSet *STURITemplateScannerInvertedVariableNameCharacterSet = nil;
+static NSCharacterSet *STURITemplateScannerInvertedVariableNameMinusDotCharacterSet = nil;
 
 
 __attribute__((constructor))
@@ -42,7 +42,7 @@ static void STURITemplateScannerInit(void) {
         NSMutableCharacterSet *cs = [[[NSCharacterSet illegalCharacterSet] invertedSet] mutableCopy];
         [cs formIntersectionWithCharacterSet:[[NSCharacterSet controlCharacterSet] invertedSet]];
         [cs formIntersectionWithCharacterSet:[[NSCharacterSet characterSetWithCharactersInString:@" \"'%<>\\^`{|}"] invertedSet]];
-        STURITemplateScannerLiteralComponentCharacterSet = cs.copy;
+        STURITemplateScannerInvertedLiteralComponentCharacterSet = cs.invertedSet;
     }
 
     STURITemplateScannerOperatorCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@"+#./;?&=,!@|"];
@@ -53,10 +53,10 @@ static void STURITemplateScannerInit(void) {
         [cs addCharactersInString:@"ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
         [cs addCharactersInString:@"0123456789"];
         [cs addCharactersInString:@"_%"];
-        STURITemplateScannerVariableNameMinusDotCharacterSet = cs.copy;
+        STURITemplateScannerInvertedVariableNameMinusDotCharacterSet = cs.invertedSet;
 
         [cs addCharactersInString:@"."];
-        STURITemplateScannerVariableNameCharacterSet = cs.copy;
+        STURITemplateScannerInvertedVariableNameCharacterSet = cs.invertedSet;
     }
 }
 
@@ -219,7 +219,7 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
         BOOL didSomething = NO;
         NSString *scratch = nil;
 
-        if ([_scanner scanCharactersFromSet:STURITemplateScannerLiteralComponentCharacterSet intoString:&scratch]) {
+        if ([_scanner scanUpToCharactersFromSet:STURITemplateScannerInvertedLiteralComponentCharacterSet intoString:&scratch]) {
             [string appendString:scratch];
             didSomething = YES;
         } else if ([self sturit_scanPercentEncoded:&scratch]) {
@@ -255,7 +255,7 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 
     {
         NSString *scratch = nil;
-        if ([_scanner scanCharactersFromSet:STURITemplateScannerVariableNameMinusDotCharacterSet intoString:&scratch]) {
+        if ([_scanner scanUpToCharactersFromSet:STURITemplateScannerInvertedVariableNameMinusDotCharacterSet intoString:&scratch]) {
             [string appendString:scratch];
         }
     }
@@ -266,7 +266,7 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 
     {
         NSString *scratch = nil;
-        if ([_scanner scanCharactersFromSet:STURITemplateScannerVariableNameCharacterSet intoString:&scratch]) {
+        if ([_scanner scanUpToCharactersFromSet:STURITemplateScannerInvertedVariableNameCharacterSet intoString:&scratch]) {
             [string appendString:scratch];
         }
     }
