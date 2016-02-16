@@ -200,10 +200,7 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
         return NO;
     }
 
-    if (![_scanner scanString:candidateString intoString:NULL]) {
-        [_scanner setScanLocation:scanLocation];
-        return NO;
-    }
+    _scanner.scanLocation += candidateString.length;
     [string appendString:candidateString];
 
     if (result) {
@@ -328,10 +325,8 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
     {
         NSString * const candidateOperator = [self sturit_peekStringUpToLength:1];
         if (candidateOperator.length == 1 && [STURITemplateScannerOperatorCharacterSet characterIsMember:[candidateOperator characterAtIndex:0]]) {
-            if (![_scanner scanString:candidateOperator intoString:&operator]) {
-                [_scanner setScanLocation:scanLocation];
-                return NO;
-            }
+            _scanner.scanLocation += 1;
+            operator = candidateOperator;
         }
     }
 
