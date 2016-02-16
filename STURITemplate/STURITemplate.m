@@ -36,13 +36,27 @@ static NSCharacterSet *STURITemplateScannerVariableNameMinusDotCharacterSet = ni
 
 __attribute__((constructor))
 static void STURITemplateScannerInit(void) {
-    STURITemplateScannerHexCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@"0123456789abcdefABCDEF"];
+    STURITemplateScannerHexCharacterSet = (__bridge_transfer id)CFCharacterSetCreateWithCharactersInString(kCFAllocatorDefault, CFSTR("0123456789abcdefABCDEF"));
 
     {
-        NSMutableCharacterSet *cs = [[[NSCharacterSet illegalCharacterSet] invertedSet] mutableCopy];
-        [cs formIntersectionWithCharacterSet:[[NSCharacterSet controlCharacterSet] invertedSet]];
-        [cs formIntersectionWithCharacterSet:[[NSCharacterSet characterSetWithCharactersInString:@" \"'%<>\\^`{|}"] invertedSet]];
-        STURITemplateScannerLiteralComponentCharacterSet = cs.copy;
+        CFCharacterSetRef const illegalCharacterSet = CFCharacterSetGetPredefined(kCFCharacterSetIllegal);
+        CFCharacterSetRef const invertedIllegalCharacterSet = CFCharacterSetCreateInvertedSet(kCFAllocatorDefault, illegalCharacterSet);
+        CFCharacterSetRef const controlCharacterSet = CFCharacterSetGetPredefined(kCFCharacterSetControl);
+        CFCharacterSetRef const invertedControlCharacterSet = CFCharacterSetCreateInvertedSet(kCFAllocatorDefault, controlCharacterSet);
+        CFCharacterSetRef const specialCharacterSet = CFCharacterSetCreateWithCharactersInString(kCFAllocatorDefault, CFSTR(" \"'%<>\\^`{|}"));
+        CFCharacterSetRef const invertedSpecialCharacterSet = CFCharacterSetCreateInvertedSet(kCFAllocatorDefault, specialCharacterSet);
+
+        CFMutableCharacterSetRef literalComponentCharacterSet = CFCharacterSetCreateMutable(kCFAllocatorDefault);
+        CFCharacterSetUnion(literalComponentCharacterSet, invertedIllegalCharacterSet);
+        CFCharacterSetIntersect(literalComponentCharacterSet, invertedControlCharacterSet);
+        CFCharacterSetIntersect(literalComponentCharacterSet, invertedSpecialCharacterSet);
+        STURITemplateScannerLiteralComponentCharacterSet = (__bridge_transfer id)CFCharacterSetCreateCopy(kCFAllocatorDefault, literalComponentCharacterSet);
+        CFRelease(literalComponentCharacterSet), literalComponentCharacterSet = NULL;
+
+        CFRelease(invertedIllegalCharacterSet);
+        CFRelease(invertedControlCharacterSet);
+        CFRelease(specialCharacterSet);
+        CFRelease(invertedSpecialCharacterSet);
     }
 
     STURITemplateScannerOperatorCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@"+#./;?&=,!@|"];
@@ -219,7 +233,22 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
         BOOL didSomething = NO;
         NSString *scratch = nil;
 
-        if ([_scanner scanCharactersFromSet:STURITemplateScannerLiteralComponentCharacterSet intoString:&scratch]) {
+        NSString * const scannerString = _scanner.string;
+        NSUInteger const scannerStringLength = scannerString.length;
+        NSUInteger const scannerInitialScanLocation = _scanner.scanLocation;
+        NSUInteger scannerScanLocation = _scanner.scanLocation;
+        BOOL foundLiteralCharacters = NO;
+        while (scannerScanLocation < scannerStringLength) {
+            unichar const c = [scannerString characterAtIndex:scannerScanLocation];
+            if (![STURITemplateScannerLiteralComponentCharacterSet characterIsMember:c]) {
+                break;
+            }
+            foundLiteralCharacters = YES;
+            scannerScanLocation += 1;
+        }
+        if (foundLiteralCharacters) {
+            _scanner.scanLocation = scannerScanLocation;
+            NSString * const scratch = [scannerString substringWithRange:(NSRange){ .location = scannerInitialScanLocation, .length = scannerScanLocation - scannerInitialScanLocation }];
             [string appendString:scratch];
             didSomething = YES;
         } else if ([self sturit_scanPercentEncoded:&scratch]) {
