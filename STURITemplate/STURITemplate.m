@@ -125,6 +125,7 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 
 
 @interface STURITemplateScanner : NSObject
+- (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithString:(NSString *)string __attribute__((objc_designated_initializer));
 - (BOOL)scanString:(NSString *)string intoString:(NSString * __autoreleasing *)result;
 - (BOOL)scanCharactersFromSet:(NSCharacterSet *)set intoString:(NSString **)result;
@@ -674,7 +675,8 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     NSArray *_components;
 }
 - (id)init {
-    return [self initWithString:nil error:NULL];
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
 - (id)initWithString:(NSString *)string {
     return [self initWithString:string error:NULL];
@@ -682,6 +684,9 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
 - (id)initWithString:(NSString *)string error:(NSError *__autoreleasing *)error {
     STURITemplateScanner * const scanner = [[STURITemplateScanner alloc] initWithString:string];
     if (!scanner) {
+        if (error) {
+            *error = [NSError errorWithDomain:STURITemplateErrorDomain code:0 userInfo:nil];
+        }
         return nil;
     }
 
@@ -689,6 +694,9 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     while (![scanner isAtEnd]) {
         id<STURITemplateComponent> component = nil;
         if (![scanner sturit_scanTemplateComponent:&component]) {
+            if (error) {
+                *error = [NSError errorWithDomain:STURITemplateErrorDomain code:0 userInfo:nil];
+            }
             return nil;
         }
         [components addObject:component];

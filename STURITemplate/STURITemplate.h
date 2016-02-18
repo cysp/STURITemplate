@@ -6,18 +6,22 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 
 extern NSString * const STURITemplateErrorDomain;
 
 
 @protocol STURITemplate <NSObject>
-@property (nonatomic,copy,readonly) NSArray *variableNames;
-- (NSString *)stringByExpandingWithVariables:(NSDictionary *)variables;
-- (NSURL *)urlByExpandingWithVariables:(NSDictionary *)variables;
+@property (nonatomic,copy,readonly) NSArray<NSString *> *variableNames;
+- (NSString *)stringByExpandingWithVariables:(NSDictionary<NSString *, NSString *> * __nullable)variables;
+- (NSURL * __nullable)urlByExpandingWithVariables:(NSDictionary<NSString *, NSString *> * __nullable)variables;
 @end
 
 @interface STURITemplate : NSObject<STURITemplate>
-- (id)initWithString:(NSString *)string;
-- (id)initWithString:(NSString *)string error:(NSError * __autoreleasing *)error;
+- (instancetype __nullable)initWithString:(NSString *)string NS_SWIFT_UNAVAILABLE("");
+- (instancetype __nullable)initWithString:(NSString *)string error:(NSError * __autoreleasing *)error;
 - (NSString *)templatedStringRepresentation;
 @end
+
+NS_ASSUME_NONNULL_END

@@ -6,16 +6,28 @@ import STURITemplate
 
 let u = NSURL(string: "http://example.org/")
 
-let searchTemplate = STURITemplate(string: "address{?formatted_address}")
-let detailTemplate = STURITemplate(string: "address/{id}")
+let searchTemplate: STURITemplate
+let detailTemplate: STURITemplate
+do {
+    searchTemplate = try STURITemplate(string: "address{?formatted_address}")
+    detailTemplate = try STURITemplate(string: "address/{id}")
 
-searchTemplate.variableNames
+    do {
+        let f = try STURITemplate(string: "{")
+    } catch (let error) {
+        error
+    }
 
-let searchRelativeURL = searchTemplate.urlByExpandingWithVariables(["formatted_address": "105 Campbell St"])
-let detailRelativeURL = detailTemplate.urlByExpandingWithVariables(["id": "abcdef"])
+    searchTemplate.variableNames
 
-let searchURL = NSURL(string: searchRelativeURL.absoluteString!, relativeToURL: u)!
-searchURL.absoluteString!
+    let searchRelativeURL = searchTemplate.urlByExpandingWithVariables(["formatted_address": "105 Campbell St"])!
+    let detailRelativeURL = detailTemplate.urlByExpandingWithVariables(["id": "abcdef"])!
 
-let detailURL = NSURL(string: detailRelativeURL.absoluteString!, relativeToURL: u)!
-detailURL.absoluteString!
+    let searchURL = NSURL(string: searchRelativeURL.absoluteString, relativeToURL: u)!
+    searchURL.absoluteString
+    
+    let detailURL = NSURL(string: detailRelativeURL.absoluteString, relativeToURL: u)!
+    detailURL.absoluteString
+} catch (let error) {
+    error
+}
