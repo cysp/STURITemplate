@@ -4,18 +4,29 @@ import Foundation
 import STURITemplate
 
 
-let u = NSURL(string: "http://example.org/")
+let u = URL(string: "http://example.org/")!
 
-let searchTemplate = STURITemplate(string: "address{?formatted_address}")
-let detailTemplate = STURITemplate(string: "address/{id}")
+let searchTemplate = try STURITemplate(string: "address{?formatted_address}")
+let detailTemplate = try STURITemplate(string: "address/{id}")
 
 searchTemplate.variableNames
 
-let searchRelativeURL = searchTemplate.urlByExpandingWithVariables(["formatted_address": "105 Campbell St"])
-let detailRelativeURL = detailTemplate.urlByExpandingWithVariables(["id": "abcdef"])
+let searchRelativeString: String = try searchTemplate.expand(variables: ["formatted_address": "105 Campbell St"])
+let searchRelativeURL: URL = try searchTemplate.expand(variables: ["formatted_address": "105 Campbell St"])
+let detailRelativeURL: URL = try detailTemplate.expand(variables: ["id": "abcdef"])
 
-let searchURL = NSURL(string: searchRelativeURL.absoluteString!, relativeToURL: u)!
-searchURL.absoluteString!
+let searchURL = URL(string: searchRelativeURL.absoluteString!, relativeTo: u)!
+searchURL.absoluteString
 
-let detailURL = NSURL(string: detailRelativeURL.absoluteString!, relativeToURL: u)!
-detailURL.absoluteString!
+let detailURL = URL(string: detailRelativeURL.absoluteString!, relativeTo: u)!
+detailURL.absoluteString
+
+
+let searchTemplate2: STURITemplate;
+do {
+    searchTemplate2 = try STURITemplate(string: "address{?formatted_address")
+} catch (let error as STURITemplateError) {
+    error
+} catch {
+    error
+}

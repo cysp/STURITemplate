@@ -7,7 +7,7 @@
 #import "STURITemplate.h"
 
 
-NSString * const STURITemplateErrorDomain = @"STURITemplate";
+NSString * const STURITemplateErrorDomain = @"STURITemplateError";
 
 
 typedef id(^STURITArrayMapBlock)(id o);
@@ -67,10 +67,12 @@ static void STURITemplateScannerInit(void) {
 - (NSString *)templateRepresentation;
 @end
 @interface STURITemplateLiteralComponent : NSObject<STURITemplateComponent>
-- (id)initWithString:(NSString *)string;
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithString:(NSString *)string NS_DESIGNATED_INITIALIZER;
 @end
 @interface STURITemplateVariableComponent : NSObject
-- (id)initWithVariables:(NSArray *)variables __attribute__((objc_designated_initializer));
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithVariables:(NSArray *)variables NS_DESIGNATED_INITIALIZER;
 @end
 @interface STURITemplateSimpleComponent : STURITemplateVariableComponent<STURITemplateComponent>
 @end
@@ -108,14 +110,17 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 
 
 @interface STURITemplateComponentVariable : NSObject
-- (id)initWithName:(NSString *)name;
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithName:(NSString *)name NS_DESIGNATED_INITIALIZER;
 @property (nonatomic,copy,readonly) NSString *name;
 - (NSString *)stringWithValue:(id)value encodingStyle:(STURITemplateEscapingStyle)encodingStyle;
 - (NSString *)templateRepresentation;
 @end
 
 @interface STURITemplateComponentTruncatedVariable : STURITemplateComponentVariable
-- (id)initWithName:(NSString *)name length:(NSUInteger)length;
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithName:(NSString *)name NS_UNAVAILABLE;
+- (instancetype)initWithName:(NSString *)name length:(NSUInteger)length NS_DESIGNATED_INITIALIZER;
 - (NSString *)templateRepresentation;
 @end
 
@@ -125,7 +130,8 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 
 
 @interface STURITemplateScanner : NSObject
-- (instancetype)initWithString:(NSString *)string __attribute__((objc_designated_initializer));
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithString:(NSString *)string NS_DESIGNATED_INITIALIZER;
 - (BOOL)scanString:(NSString *)string intoString:(NSString * __autoreleasing *)result;
 - (BOOL)scanCharactersFromSet:(NSCharacterSet *)set intoString:(NSString **)result;
 - (BOOL)scanUpToString:(NSString *)string intoString:(NSString * __autoreleasing *)result;
@@ -136,6 +142,10 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 @implementation STURITemplateScanner {
 @private
     NSScanner *_scanner;
+}
+- (instancetype)init {
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
 - (instancetype)initWithString:(NSString *)string {
     NSScanner * const scanner = [[NSScanner alloc] initWithString:string];
@@ -414,10 +424,11 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 @private
     NSString *_string;
 }
-- (id)init {
-    return [self initWithString:nil];
+- (instancetype)init {
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
-- (id)initWithString:(NSString *)string {
+- (instancetype)initWithString:(NSString *)string {
     if ((self = [super init])) {
         _string = string.copy;
     }
@@ -446,10 +457,11 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     NSArray *_variables;
     NSArray *_variableNames;
 }
-- (id)init {
-    return [self initWithVariables:nil];
+- (instancetype)init {
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
-- (id)initWithVariables:(NSArray *)variables {
+- (instancetype)initWithVariables:(NSArray *)variables {
     if ((self = [super init])) {
         _variables = variables;
         _variableNames = [_variables valueForKey:@"name"];
@@ -591,10 +603,11 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
 @implementation STURITemplateComponentVariable {
 @private
 }
-- (id)init {
-    return [self initWithName:nil];
+- (instancetype)init {
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
-- (id)initWithName:(NSString *)name {
+- (instancetype)initWithName:(NSString *)name {
     if ((self = [super init])) {
         _name = name.copy;
     }
@@ -626,7 +639,15 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
 @private
     NSUInteger _length;
 }
-- (id)initWithName:(NSString *)name length:(NSUInteger)length {
+- (instancetype)init {
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
+}
+- (instancetype)initWithName:(NSString *)name {
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
+}
+- (instancetype)initWithName:(NSString *)name length:(NSUInteger)length {
     if ((self = [super initWithName:name])) {
         _length = length;
     }
@@ -668,15 +689,19 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
 @private
     NSArray *_components;
 }
-- (id)init {
-    return [self initWithString:nil error:NULL];
+- (instancetype)init {
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
-- (id)initWithString:(NSString *)string {
+- (instancetype)initWithString:(NSString *)string {
     return [self initWithString:string error:NULL];
 }
-- (id)initWithString:(NSString *)string error:(NSError *__autoreleasing *)error {
+- (id)initWithString:(NSString *)string error:(NSError * __autoreleasing *)error {
     STURITemplateScanner * const scanner = [[STURITemplateScanner alloc] initWithString:string];
     if (!scanner) {
+        if (error) {
+            *error = [NSError errorWithDomain:STURITemplateErrorDomain code:0 userInfo:nil];
+        }
         return nil;
     }
 
@@ -684,6 +709,9 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     while (![scanner isAtEnd]) {
         id<STURITemplateComponent> component = nil;
         if (![scanner sturit_scanTemplateComponent:&component]) {
+            if (error) {
+                *error = [NSError errorWithDomain:STURITemplateErrorDomain code:0 userInfo:nil];
+            }
             return nil;
         }
         [components addObject:component];
@@ -704,11 +732,17 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
 - (NSString *)string {
     return [self stringByExpandingWithVariables:nil];
 }
-- (NSString *)stringByExpandingWithVariables:(NSDictionary *)variables {
+- (NSString *)stringByExpandingWithVariables:(NSDictionary<NSString *,id> *)variables {
+    return [self stringByExpandingWithVariables:variables error:NULL];
+}
+- (NSString *)stringByExpandingWithVariables:(NSDictionary<NSString *,id> *)variables error:(NSError * __autoreleasing __nullable * __nullable)error {
     NSMutableString * const urlString = [[NSMutableString alloc] init];
     for (id<STURITemplateComponent> component in _components) {
         NSString * const componentString = [component stringWithVariables:variables];
         if (!componentString) {
+            if (error) {
+                *error = [NSError errorWithDomain:STURITemplateErrorDomain code:STURITemplateUnknownError userInfo:nil];
+            }
             return nil;
         }
         [urlString appendString:componentString];
@@ -718,9 +752,25 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
 - (NSURL *)url {
     return [self urlByExpandingWithVariables:nil];
 }
-- (NSURL *)urlByExpandingWithVariables:(NSDictionary *)variables {
+- (NSURL *)urlByExpandingWithVariables:(NSDictionary<NSString *,id> *)variables {
+    return [self urlByExpandingWithVariables:variables error:NULL];
+}
+- (NSURL *)urlByExpandingWithVariables:(NSDictionary<NSString *,id> *)variables error:(NSError * __autoreleasing __nullable * __nullable)error {
     NSString * const urlString = [self stringByExpandingWithVariables:variables];
-    return [NSURL URLWithString:urlString];
+    if (!urlString) {
+        if (error) {
+            *error = [NSError errorWithDomain:STURITemplateErrorDomain code:STURITemplateUnknownError userInfo:nil];
+        }
+        return nil;
+    }
+    NSURL * const url = [NSURL URLWithString:urlString];
+    if (!url) {
+        if (error) {
+            *error = [NSError errorWithDomain:STURITemplateErrorDomain code:STURITemplateUnknownError userInfo:nil];
+        }
+        return nil;
+    }
+    return url;
 }
 - (NSString *)templatedStringRepresentation {
     NSMutableString * const templatedString = [[NSMutableString alloc] init];
