@@ -177,9 +177,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		2C76993419B2A0F90044B497 /* STURITemplate-mac-framework */ = {
+		2C76993419B2A0F90044B497 /* STURITemplate-framework */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2C76994819B2A0F90044B497 /* Build configuration list for PBXNativeTarget "STURITemplate-mac-framework" */;
+			buildConfigurationList = 2C76994819B2A0F90044B497 /* Build configuration list for PBXNativeTarget "STURITemplate-framework" */;
 			buildPhases = (
 				2C76993019B2A0F90044B497 /* Sources */,
 				2C76993119B2A0F90044B497 /* Frameworks */,
@@ -190,7 +190,7 @@
 			);
 			dependencies = (
 			);
-			name = "STURITemplate-mac-framework";
+			name = "STURITemplate-framework";
 			productName = STURITemplate;
 			productReference = 2C76993519B2A0F90044B497 /* STURITemplate.framework */;
 			productType = "com.apple.product-type.framework";
@@ -305,7 +305,7 @@
 			projectRoot = "";
 			targets = (
 				2C76995A19B302D00044B497 /* STURITemplate-mac */,
-				2C76993419B2A0F90044B497 /* STURITemplate-mac-framework */,
+				2C76993419B2A0F90044B497 /* STURITemplate-framework */,
 				2C76993F19B2A0F90044B497 /* STURITemplateTests-mac */,
 				2C76997219B302FB0044B497 /* STURITemplate-ios */,
 				2C76997C19B302FB0044B497 /* STURITemplateTests-ios */,
@@ -438,10 +438,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				RUN_CLANG_STATIC_ANALYZER = YES;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 3.0;
 			};
 			name = Debug;
 		};
@@ -483,10 +486,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				RUN_CLANG_STATIC_ANALYZER = YES;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 3.0;
 			};
 			name = Release;
 		};
@@ -503,8 +509,8 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = STURITemplate;
-				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
 			};
 			name = Debug;
 		};
@@ -521,8 +527,8 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = STURITemplate;
-				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
 			};
 			name = Release;
 		};
@@ -656,7 +662,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2C76994819B2A0F90044B497 /* Build configuration list for PBXNativeTarget "STURITemplate-mac-framework" */ = {
+		2C76994819B2A0F90044B497 /* Build configuration list for PBXNativeTarget "STURITemplate-framework" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2C76994919B2A0F90044B497 /* Debug */,
