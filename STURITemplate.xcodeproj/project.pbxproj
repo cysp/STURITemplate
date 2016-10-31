@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		2C26779219B5EE8800D24A31 /* STURITemplateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C76994419B2A0F90044B497 /* STURITemplateTests.m */; };
+		2C2B45301DC7294C005ED5C4 /* STURITemplate+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C2B452F1DC7294C005ED5C4 /* STURITemplate+Internal.h */; };
+		2C2B45311DC7294C005ED5C4 /* STURITemplate+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C2B452F1DC7294C005ED5C4 /* STURITemplate+Internal.h */; };
 		2C76994519B2A0F90044B497 /* STURITemplateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C76994419B2A0F90044B497 /* STURITemplateTests.m */; };
 		2C76995019B2A7070044B497 /* STURITemplate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C76994E19B2A7070044B497 /* STURITemplate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2C76995119B2A7070044B497 /* STURITemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C76994F19B2A7070044B497 /* STURITemplate.m */; };
@@ -50,6 +52,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2C2B452F1DC7294C005ED5C4 /* STURITemplate+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "STURITemplate+Internal.h"; sourceTree = "<group>"; };
 		2C76993519B2A0F90044B497 /* STURITemplate.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = STURITemplate.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C76993919B2A0F90044B497 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2C76994019B2A0F90044B497 /* STURITemplateTests-mac.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "STURITemplateTests-mac.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -132,6 +135,7 @@
 			children = (
 				2C76993919B2A0F90044B497 /* Info.plist */,
 				2C76994E19B2A7070044B497 /* STURITemplate.h */,
+				2C2B452F1DC7294C005ED5C4 /* STURITemplate+Internal.h */,
 				2C76994F19B2A7070044B497 /* STURITemplate.m */,
 			);
 			path = STURITemplate;
@@ -155,6 +159,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C76995019B2A7070044B497 /* STURITemplate.h in Headers */,
+				2C2B45311DC7294C005ED5C4 /* STURITemplate+Internal.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,6 +168,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C76999319B303B00044B497 /* STURITemplate.h in Headers */,
+				2C2B45301DC7294C005ED5C4 /* STURITemplate+Internal.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
