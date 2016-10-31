@@ -2,9 +2,10 @@
 //  License, v. 2.0. If a copy of the MPL was not distributed with this
 //  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
-//  Copyright (c) 2014 Scott Talbot.
+//  Copyright © 2014-2016 Scott Talbot.
 
-#import "STURITemplate.h"
+#import <STURITemplate/STURITemplate.h>
+#import <STURITemplate/STURITemplate+Internal.h>
 
 
 NSString * const STURITemplateErrorDomain = @"STURITemplate";
@@ -61,39 +62,6 @@ static void STURITemplateScannerInit(void) {
 }
 
 
-@protocol STURITemplateComponent <NSObject>
-@property (nonatomic,copy,readonly) NSArray *variableNames;
-- (NSString *)stringWithVariables:(NSDictionary *)variables;
-- (NSString *)templateRepresentation;
-@end
-@interface STURITemplateLiteralComponent : NSObject<STURITemplateComponent>
-- (id)initWithString:(NSString *)string;
-@end
-@interface STURITemplateVariableComponent : NSObject
-- (id)initWithVariables:(NSArray *)variables __attribute__((objc_designated_initializer));
-@end
-@interface STURITemplateSimpleComponent : STURITemplateVariableComponent<STURITemplateComponent>
-@end
-@interface STURITemplateReservedCharacterComponent : STURITemplateVariableComponent<STURITemplateComponent>
-@end
-@interface STURITemplateFragmentComponent : STURITemplateVariableComponent<STURITemplateComponent>
-@end
-@interface STURITemplatePathSegmentComponent : STURITemplateVariableComponent<STURITemplateComponent>
-@end
-@interface STURITemplatePathExtensionComponent : STURITemplateVariableComponent<STURITemplateComponent>
-@end
-@interface STURITemplateQueryComponent : STURITemplateVariableComponent<STURITemplateComponent>
-@end
-@interface STURITemplateQueryContinuationComponent : STURITemplateVariableComponent<STURITemplateComponent>
-@end
-@interface STURITemplatePathParameterComponent : STURITemplateVariableComponent<STURITemplateComponent>
-@end
-
-
-typedef NS_ENUM(NSInteger, STURITemplateEscapingStyle) {
-    STURITemplateEscapingStyleU,
-    STURITemplateEscapingStyleUR,
-};
 static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STURITemplateEscapingStyle style) {
     CFStringRef legalURLCharactersToBeEscaped = nil;
     switch (style) {
@@ -107,35 +75,13 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 }
 
 
-@interface STURITemplateComponentVariable : NSObject
-- (id)initWithName:(NSString *)name;
-@property (nonatomic,copy,readonly) NSString *name;
-- (NSString *)stringWithValue:(id)value encodingStyle:(STURITemplateEscapingStyle)encodingStyle;
-- (NSString *)templateRepresentation;
-@end
-
-@interface STURITemplateComponentTruncatedVariable : STURITemplateComponentVariable
-- (id)initWithName:(NSString *)name length:(NSUInteger)length;
-- (NSString *)templateRepresentation;
-@end
-
-@interface STURITemplateComponentExplodedVariable : STURITemplateComponentVariable
-- (NSString *)templateRepresentation;
-@end
-
-
-@interface STURITemplateScanner : NSObject
-- (instancetype)initWithString:(NSString *)string __attribute__((objc_designated_initializer));
-- (BOOL)scanString:(NSString *)string intoString:(NSString * __autoreleasing *)result;
-- (BOOL)scanCharactersFromSet:(NSCharacterSet *)set intoString:(NSString **)result;
-- (BOOL)scanUpToString:(NSString *)string intoString:(NSString * __autoreleasing *)result;
-- (BOOL)scanUpToCharactersFromSet:(NSCharacterSet *)set intoString:(NSString * __autoreleasing *)result;
-@property (nonatomic,assign,getter=isAtEnd,readonly) BOOL atEnd;
-- (BOOL)sturit_scanTemplateComponent:(id<STURITemplateComponent> __autoreleasing *)component;
-@end
 @implementation STURITemplateScanner {
 @private
     NSScanner *_scanner;
+}
+- (instancetype)init {
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
 - (instancetype)initWithString:(NSString *)string {
     NSScanner * const scanner = [[NSScanner alloc] initWithString:string];
@@ -414,10 +360,11 @@ static NSString *STURITemplateStringByAddingPercentEscapes(NSString *string, STU
 @private
     NSString *_string;
 }
-- (id)init {
-    return [self initWithString:nil];
+- (instancetype)init {
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
-- (id)initWithString:(NSString *)string {
+- (instancetype)initWithString:(NSString *)string {
     if ((self = [super init])) {
         _string = string.copy;
     }
@@ -446,10 +393,11 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     NSArray *_variables;
     NSArray *_variableNames;
 }
-- (id)init {
-    return [self initWithVariables:nil];
+- (instancetype)init {
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
-- (id)initWithVariables:(NSArray *)variables {
+- (instancetype)initWithVariables:(NSArray *)variables {
     if ((self = [super init])) {
         _variables = variables;
         _variableNames = [_variables valueForKey:@"name"];
@@ -591,10 +539,11 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
 @implementation STURITemplateComponentVariable {
 @private
 }
-- (id)init {
-    return [self initWithName:nil];
+- (instancetype)init {
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
-- (id)initWithName:(NSString *)name {
+- (instancetype)initWithName:(NSString *)name {
     if ((self = [super init])) {
         _name = name.copy;
     }
@@ -659,6 +608,7 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
     return nil;
 }
 - (NSString *)templateRepresentation {
+    NSAssert(0, @"unimplemented");
     return nil;
 }
 @end
@@ -668,13 +618,14 @@ typedef NS_ENUM(NSInteger, STURITemplateVariableComponentPairStyle) {
 @private
     NSArray *_components;
 }
-- (id)init {
-    return [self initWithString:nil error:NULL];
+- (instancetype)init {
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
 }
-- (id)initWithString:(NSString *)string {
+- (instancetype)initWithString:(NSString *)string {
     return [self initWithString:string error:NULL];
 }
-- (id)initWithString:(NSString *)string error:(NSError *__autoreleasing *)error {
+- (instancetype)initWithString:(NSString *)string error:(NSError *__autoreleasing *)error {
     STURITemplateScanner * const scanner = [[STURITemplateScanner alloc] initWithString:string];
     if (!scanner) {
         return nil;
